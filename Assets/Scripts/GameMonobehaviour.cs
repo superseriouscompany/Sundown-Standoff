@@ -8,6 +8,8 @@ public class GameMonobehaviour : MonoBehaviour {
 	public float gridSquareWidth = 0.6f;
 	public GameObject gridSquare;
 
+	public float speed = 1f;
+
 	public bool diagonalShots;
 	public bool diagonalMove;
 	public bool moveBeatsShot;
@@ -59,13 +61,6 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	void Update() {
-		for (int i = 0; i < players.Length; i++) {
-			if (players[i].targetPosition != players[i].position) {
-				players[i].position = players[i].targetPosition;
-				players[i].gameObject.transform.position = GridToWorld(players[i].targetPosition);
-			}
-		}
-
 		var position = new Vector2Int();
 		if (Input.GetKeyUp(KeyCode.RightArrow)) {
 			position.x++;
@@ -85,8 +80,29 @@ public class GameMonobehaviour : MonoBehaviour {
 				players[i].Move(moves[i]);
 				players[i].targetPosition.x = Mathf.Clamp(players[i].targetPosition.x, 0, gridSize - 1);
 				players[i].targetPosition.y = Mathf.Clamp(players[i].targetPosition.y, 0, gridSize - 1);
+				StartCoroutine(
+					SmoothMove(players[i])
+				);
 			}
 			moveIndex = 0;
 		}
+	}
+
+	IEnumerator SmoothMove(Player p) {
+		var origin = GridToWorld(p.position);
+		var destination = GridToWorld(p.targetPosition);
+		var distance = (destination - origin).magnitude;
+		var startTime = Time.time;
+
+		float deltaTime;
+		do {
+			deltaTime = Time.time - startTime;
+			Debug.Log($"Moving distance of {distance} by {deltaTime} at speed {speed}");
+			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * speed);
+			yield return null;
+		} while (deltaTime < distance / speed);
+		p.gameObject.transform.position = destination;
+		p.position = p.targetPosition;
+		yield return null;
 	}
 }
