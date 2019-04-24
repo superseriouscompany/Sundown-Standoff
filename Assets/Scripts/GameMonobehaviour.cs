@@ -94,16 +94,18 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		Debug.Log($"Action received for player {moveIndex}");
+		Debug.Log($"Action {action.actionType} {action.direction} received for player {action.player.id}");
 		moves[moveIndex++] = action;
 
 		if (moveIndex >= moves.Length) {
+			System.Array.Sort(moves, (a, b) => a.actionType.CompareTo(b.actionType));
 			for (int i = 0; i < moves.Length; i++) {
+				var player = players[moves[i].player.id];
 				switch(moves[i].actionType) {
 					case ActionType.MOVE:
-						players[i].Move(moves[i].direction);
+						player.Move(moves[i].direction);
 						StartCoroutine(
-							SmoothMove(players[i])
+							SmoothMove(player)
 						);
 						break;
 					case ActionType.SHOOT:
