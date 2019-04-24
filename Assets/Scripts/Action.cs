@@ -6,7 +6,7 @@ public class Action {
 	public ActionType actionType;
 	public Player player;
 	public int turn;
-	public Vector2Int target;
+	public Vector2Int direction;
 }
 
 public enum ActionType {

@@ -73,18 +73,18 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		action.target = new Vector2Int();
+		action.direction = new Vector2Int();
 		if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
-			action.target.x++;
+			action.direction.x++;
 		}
 		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
-			action.target.x--;
+			action.direction.x--;
 		}
 		if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
-			action.target.y++;
+			action.direction.y++;
 		}
 		if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
-			action.target.y--;
+			action.direction.y--;
 		}
 
 		action.player = players[moveIndex];
@@ -101,13 +101,20 @@ public class GameMonobehaviour : MonoBehaviour {
 			for (int i = 0; i < moves.Length; i++) {
 				switch(moves[i].actionType) {
 					case ActionType.MOVE:
-						players[i].Move(moves[i].target);
+						players[i].Move(moves[i].direction);
 						StartCoroutine(
 							SmoothMove(players[i])
 						);
 						break;
 					case ActionType.SHOOT:
-						Debug.Log($"Shooting at {moves[i].target}");
+						var squares = grid.Raycast(moves[i]);
+						for (int x = 0; x < squares.Count; x++) {
+							for (int j = 0; j < players.Length; j++) {
+								if (squares[x] == players[j].targetPosition) {
+									Debug.Log($"Hit {players[j].id}!");
+								}
+							}
+						}
 						break;
 				}
 			}

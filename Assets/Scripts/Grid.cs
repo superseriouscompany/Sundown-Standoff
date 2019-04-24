@@ -6,15 +6,30 @@ public class Grid {
 	public int gridSize;
 
 	public bool Validate(Action action) {
-		if (action.target.x == 0 && action.target.y == 0) { return false; }
+		if (action.direction.x == 0 && action.direction.y == 0) { return false; }
 
 		switch(action.actionType) {
 			case ActionType.MOVE:
-				var targetPosition = action.player.position + action.target;
-				return targetPosition.x >= 0 && targetPosition.x < gridSize 
-					&& targetPosition.y >= 0 && targetPosition.y < gridSize;
+				var targetPosition = action.player.position + action.direction;
+				return IsValidSquare(targetPosition);
 			default:
 				return true;
 		}
+	}
+
+	public List<Vector2Int> Raycast(Action action) {
+		var origin = action.player.position;
+		var squares = new List<Vector2Int>();
+
+		for (var nextSquare = origin + action.direction; IsValidSquare(nextSquare); nextSquare += action.direction) {
+			squares.Add(nextSquare);
+		}
+
+		return squares;
+	}
+
+	bool IsValidSquare(Vector2Int vector) {
+		return vector.x >= 0 && vector.x < gridSize
+			&& vector.y >= 0 && vector.y < gridSize;
 	}
 }
