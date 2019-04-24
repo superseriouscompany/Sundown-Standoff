@@ -63,36 +63,53 @@ public class GameMonobehaviour : MonoBehaviour {
 		);
 	}
 
+	Action action;
 	void Update() {
-		var position = new Vector2Int();
-		if (Input.GetKeyUp(KeyCode.RightArrow)) {
-			position.x++;
-		} else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
-			position.x--;
-		} else if (Input.GetKeyUp(KeyCode.UpArrow)) {
-			position.y++;
-		} else if (Input.GetKeyUp(KeyCode.DownArrow)) {
-			position.y--;
+		if (Input.GetKeyUp(KeyCode.Space)) {
+			action = new Action() { actionType = ActionType.SHOOT };
+		} else if (Input.GetKeyUp(KeyCode.Return)) {
+			action = new Action() { actionType = ActionType.MOVE };
 		} else {
 			return;
 		}
 
-		var action = new Action() {
-			actionType = ActionType.MOVE,
-			target = position,
-			player = players[moveIndex]
-		};
+		action.target = new Vector2Int();
+		if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+			action.target.x++;
+		}
+		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+			action.target.x--;
+		}
+		if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
+			action.target.y++;
+		}
+		if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
+			action.target.y--;
+		}
+
+		action.player = players[moveIndex];
+
 		if (!grid.Validate(action)) {
+			Debug.Log("Action rejected");
 			return;
 		}
 
+		Debug.Log($"Action received for player {moveIndex}");
 		moves[moveIndex++] = action;
+
 		if (moveIndex >= moves.Length) {
 			for (int i = 0; i < moves.Length; i++) {
-				players[i].Move(moves[i].target);
-				StartCoroutine(
-					SmoothMove(players[i])
-				);
+				switch(moves[i].actionType) {
+					case ActionType.MOVE:
+						players[i].Move(moves[i].target);
+						StartCoroutine(
+							SmoothMove(players[i])
+						);
+						break;
+					case ActionType.SHOOT:
+						Debug.Log($"Shooting at {moves[i].target}");
+						break;
+				}
 			}
 			moveIndex = 0;
 		}

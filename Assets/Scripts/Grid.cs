@@ -6,6 +6,8 @@ public class Grid {
 	public int gridSize;
 
 	public bool Validate(Action action) {
+		if (action.target.x == 0 && action.target.y == 0) { return false; }
+
 		switch(action.actionType) {
 			case ActionType.MOVE:
 				var targetPosition = action.player.position + action.target;
