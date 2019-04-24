@@ -8,9 +8,11 @@ public class Player {
 	public Vector2Int position;
 	public Vector2Int targetPosition;
 	public GameObject gameObject;
+	public int hp;
 
-	public Player(int id, GameObject gameObject, Vector2Int position) {
+	public Player(int id, int hp, Vector2Int position) {
 		this.id = id;
+		this.hp = hp;
 		this.gameObject = gameObject;
 		this.position = position;
 		targetPosition = position;

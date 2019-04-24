@@ -6,8 +6,11 @@ public class GameMonobehaviour : MonoBehaviour {
 	public int gridSize = 5;
 	public int startingHp = 3;
 	public float gridSquareWidth = 0.6f;
+
+	public GameObject player;
 	public GameObject gridSquare;
 
+	public int hp = 3;
 	public float speed = 1f;
 
 	public bool diagonalShots;
@@ -19,28 +22,24 @@ public class GameMonobehaviour : MonoBehaviour {
 	public bool obstacles;
 	public bool mines;
 
-	Player[] players = new Player[2];
+	public Player[] players = new Player[2];
 	Grid grid;
-	GameObject playerTwo;
-
-	float start;
-	float end;
-	float center;
 
 	Action[] moves = new Action[2];
 	int moveIndex;
 
 	void Start() {
-		players[0] = new Player(0, GameObject.Find("Player One"), new Vector2Int(0, gridSize / 2));
-		players[1] = new Player(1, GameObject.Find("Player Two"), new Vector2Int(gridSize - 1, gridSize / 2));
+		players[0] = new Player(0, hp, new Vector2Int(0, gridSize / 2));
+		players[1] = new Player(1, hp, new Vector2Int(gridSize - 1, gridSize / 2));
 
 		for (int i = 0; i < players.Length; i++) {
-			players[i].gameObject.transform.position = GridToWorld(players[i].targetPosition);
+			var playerObject = Instantiate(player);
+			playerObject.transform.position = GridToWorld(players[i].position);
+			if (i == 1) {
+				playerObject.GetComponent<SpriteRenderer>().flipX = true;
+			}
+			players[i].gameObject = playerObject;
 		}
-
-		start = gridSize * -gridSquareWidth / 2;
-		end = -start - 1;
-		center = start + gridSquareWidth * 2;
 
 		for (int i = 0; i < gridSize; i++) {
 			for (int j = 0; j < gridSize; j++) {
@@ -113,7 +112,11 @@ public class GameMonobehaviour : MonoBehaviour {
 						for (int x = 0; x < squares.Count; x++) {
 							for (int j = 0; j < players.Length; j++) {
 								if (squares[x] == players[j].targetPosition) {
-									Debug.Log($"Hit {players[j].id}!");
+									Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
+									players[j].hp--;
+									if (players[j].hp <= 0) {
+										StartCoroutine(Restart());
+									}
 								}
 							}
 						}
@@ -139,5 +142,13 @@ public class GameMonobehaviour : MonoBehaviour {
 		p.gameObject.transform.position = destination;
 		p.position = p.targetPosition;
 		yield return null;
+	}
+
+	IEnumerator Restart() {
+		yield return new WaitForSeconds(1);
+		for (int i = 0; i < players.Length; i++) {
+			Destroy(players[i].gameObject);
+		}
+		Start();
 	}
 }
