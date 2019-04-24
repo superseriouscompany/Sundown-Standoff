@@ -1,0 +1,9 @@
+*.meta -diff
+*.placeholder -diff
+*.mat -diff
+*.anim -diff
+*.controller -diff
+*.asset -diff
+*.prefab -diff
+*.shader -diff
+Assets/Scripts/Generated -diff
