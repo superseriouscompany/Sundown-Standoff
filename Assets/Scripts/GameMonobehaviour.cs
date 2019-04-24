@@ -19,14 +19,15 @@ public class GameMonobehaviour : MonoBehaviour {
 	public bool obstacles;
 	public bool mines;
 
-	public Player[] players = new Player[2];
+	Player[] players = new Player[2];
+	Grid grid;
 	GameObject playerTwo;
 
 	float start;
 	float end;
 	float center;
 
-	Vector2Int[] moves = new Vector2Int[2];
+	Action[] moves = new Action[2];
 	int moveIndex;
 
 	void Start() {
@@ -47,6 +48,8 @@ public class GameMonobehaviour : MonoBehaviour {
 				square.transform.position = GridToWorld(i, j);
 			}
 		}
+
+		grid = new Grid() { gridSize = gridSize };
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -74,12 +77,19 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		moves[moveIndex++] = position;
+		var action = new Action() {
+			actionType = ActionType.MOVE,
+			target = position,
+			player = players[moveIndex]
+		};
+		if (!grid.Validate(action)) {
+			return;
+		}
+
+		moves[moveIndex++] = action;
 		if (moveIndex >= moves.Length) {
 			for (int i = 0; i < moves.Length; i++) {
-				players[i].Move(moves[i]);
-				players[i].targetPosition.x = Mathf.Clamp(players[i].targetPosition.x, 0, gridSize - 1);
-				players[i].targetPosition.y = Mathf.Clamp(players[i].targetPosition.y, 0, gridSize - 1);
+				players[i].Move(moves[i].target);
 				StartCoroutine(
 					SmoothMove(players[i])
 				);
@@ -97,7 +107,6 @@ public class GameMonobehaviour : MonoBehaviour {
 		float deltaTime;
 		do {
 			deltaTime = Time.time - startTime;
-			Debug.Log($"Moving distance of {distance} by {deltaTime} at speed {speed}");
 			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * speed);
 			yield return null;
 		} while (deltaTime < distance / speed);
