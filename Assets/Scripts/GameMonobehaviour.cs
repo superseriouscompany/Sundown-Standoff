@@ -4,20 +4,36 @@ using UnityEngine;
 
 public class GameMonobehaviour : MonoBehaviour {
 	public int gridSize = 5;
+	public int startingHp = 3;
 	public float gridSquareWidth = 0.6f;
 	public GameObject gridSquare;
 
+	public bool diagonalShots;
+	public bool diagonalMove;
+	public bool moveBeatsShot;
+	public bool minimum2;
+	public bool incrementalResolution;
+	public bool doubleShot;
+	public bool obstacles;
+	public bool mines;
+
 	GameObject playerOne;
 	GameObject playerTwo;
+
+	float start;
+	float end;
+	float center;
 
 	void Start() {
 		playerOne = GameObject.Find("Player One");
 		playerTwo = GameObject.Find("Player Two");
 
-		var start = gridSize * -gridSquareWidth / 2;
+		start = gridSize * -gridSquareWidth / 2;
+		end = -start - 1;
+		center = start + gridSquareWidth * 2;
 
-		playerOne.transform.position = new Vector2(start, start + gridSquareWidth * 2);
-		playerTwo.transform.position = new Vector2(-start - 1, start + gridSquareWidth * 2);
+		playerOne.transform.position = new Vector2(start, center);
+		playerTwo.transform.position = new Vector2(end, center);
 
 		for (int i = 0; i < gridSize; i++) {
 			for (int j = 0; j < gridSize; j++) {
@@ -28,20 +44,23 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	void Update() {
-		var translation = Vector2.zero;
+		var position = playerOne.transform.position;
 
 		if (Input.GetKeyUp(KeyCode.RightArrow)) {
-			translation.x = gridSquareWidth;
+			position.x += gridSquareWidth;
 		} else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
-			translation.x = -gridSquareWidth;
+			position.x -= gridSquareWidth;
 		}
 
 		if (Input.GetKeyUp(KeyCode.UpArrow)) {
-			translation.y = gridSquareWidth;
+			position.y += gridSquareWidth;
 		} else if (Input.GetKeyUp(KeyCode.DownArrow)) {
-			translation.y = -gridSquareWidth;
+			position.y -= gridSquareWidth;
 		}
 
-		playerOne.transform.Translate(translation);
+		position.x = Mathf.Clamp(position.x, start, end);
+		position.y = Mathf.Clamp(position.y, start, end);
+
+		playerOne.transform.position = position;
 	}
 }
