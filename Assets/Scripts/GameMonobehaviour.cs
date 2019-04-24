@@ -24,6 +24,9 @@ public class GameMonobehaviour : MonoBehaviour {
 	float end;
 	float center;
 
+	Vector2[] moves = new Vector2[2];
+	int moveIndex;
+
 	void Start() {
 		playerOne = GameObject.Find("Player One");
 		playerTwo = GameObject.Find("Player Two");
@@ -44,23 +47,29 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	void Update() {
-		var position = playerOne.transform.position;
+		var position = moveIndex == 0 ? playerOne.transform.position : playerTwo.transform.position;
 
 		if (Input.GetKeyUp(KeyCode.RightArrow)) {
 			position.x += gridSquareWidth;
 		} else if (Input.GetKeyUp(KeyCode.LeftArrow)) {
 			position.x -= gridSquareWidth;
-		}
-
-		if (Input.GetKeyUp(KeyCode.UpArrow)) {
+		} else if (Input.GetKeyUp(KeyCode.UpArrow)) {
 			position.y += gridSquareWidth;
 		} else if (Input.GetKeyUp(KeyCode.DownArrow)) {
 			position.y -= gridSquareWidth;
+		} else {
+			return;
 		}
 
 		position.x = Mathf.Clamp(position.x, start, end);
 		position.y = Mathf.Clamp(position.y, start, end);
 
-		playerOne.transform.position = position;
+		moves[moveIndex++] = position;
+		if (moveIndex >= moves.Length) {
+			playerOne.transform.position = moves[0];
+			playerTwo.transform.position = moves[1];
+			moveIndex = 0;
+		}
+
 	}
 }
