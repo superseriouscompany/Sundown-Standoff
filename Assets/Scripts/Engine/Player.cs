@@ -108,6 +108,8 @@ public class Player {
 
 	public void Move(Vector2Int vector) {
 		targetPosition = position + vector;
+		targetPosition.x = Mathf.Clamp(targetPosition.x, 0, Rules.instance.gridSize - 1);
+		targetPosition.y = Mathf.Clamp(targetPosition.y, 0, Rules.instance.gridSize - 1);
 	}
 }
 
