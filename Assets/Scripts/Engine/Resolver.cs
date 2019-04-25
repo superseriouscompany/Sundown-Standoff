@@ -30,6 +30,7 @@ public class Resolver {
 		foreach (var action in roundMovement) {
 			var player = action.player;
 			player.Move(action.direction);
+			player.actionsTaken++;
 		}
 
 		foreach (var player in players) {
@@ -68,6 +69,8 @@ public class Resolver {
 					}
 				}
 			}
+
+			player.actionsTaken++;
 		}
 
 		round++;

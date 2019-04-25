@@ -14,6 +14,7 @@ public class Player {
 	public Card card;
 	public List<Action> actions = new List<Action>();
 
+	public int actionsTaken;
 	int turn;
 
 	public Player(int id, int hp, Vector2Int position) {
@@ -30,6 +31,7 @@ public class Player {
 			if (cards[i].actions == numActions) {
 				card = cards[i];
 				actions.Clear();
+				actionsTaken = 0;
 				return;
 			}
 		}
@@ -44,8 +46,20 @@ public class Player {
 	}
 
 	public void AddAction(Action action) {
-		if (actions.Count >= card.actions) {
+		if (actionCount >= card.actions) {
 			throw new TooManyActionsException($"Tried to add an action but we already have {actions.Count} which is more than {card.actions}");
+		}
+
+		if (Rules.instance.doubleShot) {
+			var lastAction = actions.Count > 0 ? actions[actions.Count - 1] : null;
+			var expectsShot = lastAction != null && lastAction.actionType == ActionType.SHOOT && lastAction.dualDirection.x == 0 && lastAction.dualDirection.y == 0;
+
+			if (expectsShot && action.actionType == ActionType.SHOOT) {
+				lastAction.dualDirection = action.direction;
+				return;
+			} else if (expectsShot && action.actionType == ActionType.MOVE) {
+				throw new NeedsDoubleShotException($"Expected second shoot action but got move");
+			}
 		}
 
 		action.turn = turn++;
@@ -55,17 +69,34 @@ public class Player {
 
 	public bool isReady {
 		get {
-			return actions.Count == card.actions;
+			return actionCount == card.actions;
+		}
+	}
+
+	public int actionCount {
+		get {
+			int total = 0;
+			foreach(var action in actions) {
+				total++;
+
+				if (Rules.instance.doubleShot) {
+					if (action.actionType == ActionType.SHOOT && action.dualDirection.x == 0 && action.dualDirection.y == 0) {
+						total--;
+					}
+				}
+			}
+			return total;
 		}
 	}
 
 	void Deal() {
+		var minimum = Rules.instance.minimum2 ? 2 : 1;
 		cards = new List<Card>() {
 			new Card() { actions = 3 },
 			new Card() { actions = 2 },
-			new Card() { actions = 1 },
-			new Card() { actions = 1 },
-			new Card() { actions = 1 }
+			new Card() { actions = minimum },
+			new Card() { actions = minimum },
+			new Card() { actions = minimum }
 		};
 	}
 
@@ -84,4 +115,8 @@ class CardMissingException : System.Exception {
 
 class TooManyActionsException : System.Exception {
 	public TooManyActionsException(string message) : base(message) { }
+}
+
+class NeedsDoubleShotException : System.Exception {
+	public NeedsDoubleShotException(string message) : base(message) { }
 }

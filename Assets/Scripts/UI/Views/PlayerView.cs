@@ -28,7 +28,7 @@ public class PlayerView : UIView {
 				break;
 			case Phase.ACTIONS:
 				sb.Append("Actions: ");
-				sb.Append(player.actions.Count + " / " + player.card.actions);
+				sb.Append(player.actionCount + " / " + player.card.actions);
 				break;
 		}
 		if (myTurn) {

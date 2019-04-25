@@ -31,6 +31,12 @@ public class Grid {
 			squares.Add(nextSquare);
 		}
 
+		if (Rules.instance.doubleShot) {
+			for (var nextSquare = origin + action.dualDirection; IsValidSquare(nextSquare); nextSquare += action.dualDirection) {
+				squares.Add(nextSquare);
+			}
+		}
+
 		return squares;
 	}
 

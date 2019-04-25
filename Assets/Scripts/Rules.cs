@@ -6,12 +6,12 @@ public class Rules : MonoBehaviour {
 	public int gridSize = 5;
 	public int hp = 3;
 
+	public bool doubleShot;
+	public bool minimum2;
+	public bool incrementalResolution;
 	public bool diagonalShots;
 	public bool diagonalMove;
 	public bool moveBeatsShot;
-	public bool minimum2;
-	public bool incrementalResolution;
-	public bool doubleShot;
 	public bool obstacles;
 	public bool mines;
 

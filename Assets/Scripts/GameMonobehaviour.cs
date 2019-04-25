@@ -62,71 +62,28 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		if (cardSelectionIndex < players.Length) {
-			int numActions = 0;
-			if (Input.GetKeyUp(KeyCode.Alpha1)) {
-				numActions = 1;
-			} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
-				numActions = 2;
-			} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
-				numActions = 3;
-			}
-
-			if (numActions == 0) { return; }
-			try {
-				players[cardSelectionIndex].PickCard(numActions);
-				cardSelectionIndex++;
-				UIDispatcher.Send(new DSUI.RenderAction());
-
-				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = cardSelectionIndex });
-				if (cardSelectionIndex >= players.Length) {
-					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
-					UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS });
-
-					for (int i = 0; i < players.Length; i++) {
-						players[i].Discard();
-					}
-				}
-			} catch (CardMissingException) { }
-
+			PickCard();
 			return;
 		}
 
-		Action action;
-		if (Input.GetKeyDown(KeyCode.Space)) {
-			action = new Action() { actionType = ActionType.SHOOT };
-		} else if (Input.GetKeyDown(KeyCode.Return)) {
-			action = new Action() { actionType = ActionType.MOVE };
-		} else {
-			return;
-		}
+		var action = ActionFromInput();
+		if (action == null) { return; }
 
-		action.direction = new Vector2Int();
-		if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
-			action.direction.x++;
-		}
-		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
-			action.direction.x--;
-		}
-		if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
-			action.direction.y++;
-		}
-		if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
-			action.direction.y--;
-		}
-
-		action.player = players[0].isReady ? players[1] : players[0];
+		action.player = players[UIState.singleton.turn];
 		if (!grid.Validate(action)) {
 			Log("Action rejected");
 			return;
 		}
-
-		action.player.AddAction(action);
+		try {
+			action.player.AddAction(action);
+		} catch(NeedsDoubleShotException) { return; }
 
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0 });
 
 		bool allReady = true;
 		List<Action> actions = new List<Action>();
 		for (int i = 0; i < players.Length; i++) {
+
 			if (!players[i].isReady) { allReady = false; }
 			for (int j = 0; j < players[i].actions.Count; j++) {
 				actions.Add(players[i].actions[j]);
@@ -194,15 +151,84 @@ public class GameMonobehaviour : MonoBehaviour {
 			yield return new WaitForSeconds(turnDelay);
 		}
 
-		cardSelectionIndex = 0;
-		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
-		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+		bool isComplete = true;
+		foreach (var player in players) {
+			if (player.actionsTaken < player.actionCount) {
+				if (isComplete == true) {
+					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = player.id });
+				}
+				isComplete = false;
+			}
+		}
+
+		if (isComplete) {
+			cardSelectionIndex = 0;
+			UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
+			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+			foreach (var player in players) {
+				player.actionsTaken = 0;
+			}
+		}
 
 		foreach (var player in players) {
 			if (player.hp <= 0) {
 				yield return StartCoroutine(Restart());
 			}
 		}
+	}
+
+	Action ActionFromInput() {
+		Action action;
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			action = new Action() { actionType = ActionType.SHOOT };
+		} else if (Input.GetKeyDown(KeyCode.Return)) {
+			action = new Action() { actionType = ActionType.MOVE };
+		} else {
+			return null;
+		}
+
+		action.direction = new Vector2Int();
+		if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+			action.direction.x++;
+		}
+		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+			action.direction.x--;
+		}
+		if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
+			action.direction.y++;
+		}
+		if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
+			action.direction.y--;
+		}
+		return action;
+	}
+
+	void PickCard() {
+		int numActions = 0;
+		if (Input.GetKeyUp(KeyCode.Alpha1)) {
+			numActions = 1;
+		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
+			numActions = 2;
+		} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
+			numActions = 3;
+		}
+
+		if (numActions == 0) { return; }
+		try {
+			players[cardSelectionIndex].PickCard(numActions);
+			cardSelectionIndex++;
+			UIDispatcher.Send(new DSUI.RenderAction());
+
+			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = cardSelectionIndex });
+			if (cardSelectionIndex >= players.Length) {
+				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+				UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS });
+
+				for (int i = 0; i < players.Length; i++) {
+					players[i].Discard();
+				}
+			}
+		} catch (CardMissingException) { }
 	}
 
 	void Log(string msg) {
