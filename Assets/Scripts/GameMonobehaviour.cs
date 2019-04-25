@@ -1,17 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ReactiveUI;
 
 public class GameMonobehaviour : MonoBehaviour {
 	public int gridSize = 5;
-	public int startingHp = 3;
-	public float gridSquareWidth = 0.6f;
-
-	public GameObject player;
-	public GameObject gridSquare;
-
 	public int hp = 3;
-	public float speed = 1f;
 
 	public bool diagonalShots;
 	public bool diagonalMove;
@@ -22,7 +16,12 @@ public class GameMonobehaviour : MonoBehaviour {
 	public bool obstacles;
 	public bool mines;
 
-	public Player[] players = new Player[2];
+	public GameObject player;
+	public GameObject gridSquare;
+	public float speed = 1f;
+	public float gridSquareWidth = 0.6f;
+
+	Player[] players = new Player[2];
 	Grid grid;
 
 	Action[] moves = new Action[2];
@@ -39,12 +38,15 @@ public class GameMonobehaviour : MonoBehaviour {
 				playerObject.GetComponent<SpriteRenderer>().flipX = true;
 			}
 			players[i].gameObject = playerObject;
+			UIDispatcher.Send(new DSUI.SetPlayer() { player = players[i] });
 		}
 
+		var gridCnr = new GameObject("Grid");
 		for (int i = 0; i < gridSize; i++) {
 			for (int j = 0; j < gridSize; j++) {
 				var square = Instantiate(gridSquare);
 				square.transform.position = GridToWorld(i, j);
+				square.transform.parent = gridCnr.transform;
 			}
 		}
 
@@ -114,6 +116,7 @@ public class GameMonobehaviour : MonoBehaviour {
 								if (squares[x] == players[j].targetPosition) {
 									Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
 									players[j].hp--;
+									UIDispatcher.Send(new DSUI.RenderAction());
 									if (players[j].hp <= 0) {
 										StartCoroutine(Restart());
 									}
