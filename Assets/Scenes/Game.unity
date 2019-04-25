@@ -568,7 +568,7 @@ MonoBehaviour:
   hp: 3
   doubleShot: 0
   minimum2: 0
-  incrementalResolution: 1
+  incrementalResolution: 0
   diagonalShots: 1
   diagonalMove: 1
   moveBeatsShot: 0
