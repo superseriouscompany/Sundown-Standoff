@@ -51,6 +51,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		grid = new Grid() { gridSize = gridSize };
+
+		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -67,23 +70,32 @@ public class GameMonobehaviour : MonoBehaviour {
 	Action action;
 	int cardSelectionIndex;
 	void Update() {
-		int actions = 0;
-		if (Input.GetKeyUp(KeyCode.Alpha1)) {
-			actions = 1;
-		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
-			actions = 2;
-		} else if(Input.GetKeyUp(KeyCode.Alpha3)) {
-			actions = 3;
+		if (cardSelectionIndex < players.Length) {
+			int actions = 0;
+			if (Input.GetKeyUp(KeyCode.Alpha1)) {
+				actions = 1;
+			} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
+				actions = 2;
+			} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
+				actions = 3;
+			}
+
+			if (actions == 0) { return; }
+			try {
+				players[cardSelectionIndex].UseCard(actions);
+				cardSelectionIndex++;
+				UIDispatcher.Send(new DSUI.RenderAction());
+
+				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = cardSelectionIndex });
+				if (cardSelectionIndex >= players.Length) {
+					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+					UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS});
+				}
+			} catch (CardMissingException e) { }
+
+			return;
 		}
 
-		if (actions  == 0) { return; }
-		try {
-			players[cardSelectionIndex].UseCard(actions);
-			UIDispatcher.Send(new DSUI.RenderAction());
-			if (++cardSelectionIndex >= players.Length) { cardSelectionIndex = 0; }
-		} catch(CardMissingException e) { }
-
-		return;
 
 		if (Input.GetKeyUp(KeyCode.Space)) {
 			action = new Action() { actionType = ActionType.SHOOT };
@@ -117,6 +129,8 @@ public class GameMonobehaviour : MonoBehaviour {
 		Debug.Log($"Action {action.actionType} {action.direction} received for player {action.player.id}");
 		Log($"Action received for player {action.player.id + 1}");
 		moves[moveIndex++] = action;
+
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = moveIndex });
 
 		if (moveIndex >= moves.Length) {
 			System.Array.Sort(moves, (a, b) => a.actionType.CompareTo(b.actionType));
@@ -152,6 +166,7 @@ public class GameMonobehaviour : MonoBehaviour {
 				}
 			}
 			moveIndex = 0;
+			cardSelectionIndex = 0;
 		}
 	}
 

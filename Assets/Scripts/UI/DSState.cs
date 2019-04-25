@@ -5,5 +5,12 @@ namespace ReactiveUI {
 		public Player[] players = new Player[2];
 
 		public string message;
+		public Phase phase;
+		public int turn;
+	}
+
+	public enum Phase {
+		CARDS,
+		ACTIONS
 	}
 }

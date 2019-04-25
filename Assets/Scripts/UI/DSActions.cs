@@ -17,6 +17,22 @@ namespace DSUI {
 		}
 	}
 
+	public struct SetPhaseAction : IUIAction {
+		public Phase phase;
+
+		public void Execute(UIState state) {
+			state.phase = phase;
+		}
+	}
+
+	public struct SetTurnAction : IUIAction {
+		public int turn;
+
+		public void Execute(UIState state) {
+			state.turn = turn;
+		}
+	}
+
 	public struct RenderAction : IUIAction {
 		public void Execute(UIState state) { }
 	}
