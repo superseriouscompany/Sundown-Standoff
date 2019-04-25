@@ -1,3 +1,4 @@
+*.unity -diff
 *.meta -diff
 *.placeholder -diff
 *.mat -diff
