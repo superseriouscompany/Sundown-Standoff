@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class Sandbox : MonoBehaviour {
 	public float speed;
+	public Animator animator;
 
 	// Start is called before the first frame update
 	void Start() {
 		StartCoroutine(DoMovement());
+	}
+
+	void Update() {
+		if (Input.GetKeyUp(KeyCode.Space)) {
+			animator.SetTrigger("DoubleShot");
+		}
 	}
 
 	IEnumerator DoMovement() {

@@ -112,9 +112,14 @@ public class GameMonobehaviour : MonoBehaviour {
 						break;
 					case ActionType.SHOOT:
 						var squares = grid.Raycast(moves[i]);
+						var animator = player.gameObject.GetComponent<Animator>();
+						animator.SetTrigger("Shoot");
+
 						for (int x = 0; x < squares.Count; x++) {
 							for (int j = 0; j < players.Length; j++) {
 								if (squares[x] == players[j].targetPosition) {
+									var victimAnimator = players[j].gameObject.GetComponent<Animator>();
+									victimAnimator.SetTrigger("Hit");
 									Log($"Player {player.id} hits player {players[j].id} with a shot!");
 									players[j].hp--;
 									UIDispatcher.Send(new DSUI.RenderAction());
@@ -136,13 +141,15 @@ public class GameMonobehaviour : MonoBehaviour {
 		var destination = GridToWorld(p.targetPosition);
 		var distance = (destination - origin).magnitude;
 		var startTime = Time.time;
-
+		var animator = p.gameObject.GetComponent<Animator>();
+		animator.SetBool("Move", true);
 		float deltaTime;
 		do {
 			deltaTime = Time.time - startTime;
 			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * speed);
 			yield return null;
 		} while (deltaTime < distance / speed);
+		animator.SetBool("Move", false);
 		p.gameObject.transform.position = destination;
 		p.position = p.targetPosition;
 		yield return null;
