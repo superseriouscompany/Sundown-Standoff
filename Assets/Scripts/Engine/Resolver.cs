@@ -5,8 +5,8 @@ using System.Linq;
 using ReactiveUI;
 
 public class Resolver {
-	List<Action> actions;
 	int round;
+	List<Action> actions = new List<Action>();
 	Grid grid;
 	Player[] players;
 
@@ -16,16 +16,36 @@ public class Resolver {
 		}
 	}
 
-	public Resolver(Grid grid, Player[] players, List<Action> actions) {
-		this.actions = actions;
-		this.actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
+	public Resolver(Grid grid, Player[] players) {
 		this.grid = grid;
 		this.players = players;
+		SortActions();
+	}
+
+	public void AddActions(List<Action> newActions) {
+		actions.AddRange(newActions);
+		SortActions();
+	}
+
+	public void AddAction(Action action) {
+		actions.Add(action);
+		SortActions();
+	}
+
+	public void Reset() {
+		round = 0;
+		actions.Clear();
+	}
+
+	void SortActions() {
+		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
 	}
 
 	public void Step() {
 		var roundMovement = actions.Where((a) => a.turn == round && a.actionType == ActionType.MOVE).ToList();
 		var roundShooting = actions.Where((a) => a.turn == round && a.actionType == ActionType.SHOOT).ToList();
+
+		Debug.Log($"Running {roundMovement.Count} moves and {roundShooting.Count} shots");
 
 		foreach (var action in roundMovement) {
 			var player = action.player;

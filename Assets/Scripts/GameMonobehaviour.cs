@@ -12,6 +12,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	Player[] players = new Player[2];
 	Grid grid;
+	Resolver resolver;
 
 	void Start() {
 		players[0] = new Player(0, Rules.instance.hp, new Vector2Int(0, Rules.instance.gridSize / 2));
@@ -41,6 +42,8 @@ public class GameMonobehaviour : MonoBehaviour {
 		grid = new Grid() { gridSize = Rules.instance.gridSize };
 		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+
+		resolver = new Resolver(grid, players);
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -78,20 +81,26 @@ public class GameMonobehaviour : MonoBehaviour {
 			action.player.AddAction(action);
 		} catch(NeedsDoubleShotException) { return; }
 
-		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0 });
-
 		bool allReady = true;
 		List<Action> actions = new List<Action>();
 		for (int i = 0; i < players.Length; i++) {
-
-			if (!players[i].isReady) { allReady = false; }
+			if (!players[i].isReady) { 
+				if (allReady) {
+					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = i });
+				}
+				allReady = false; 
+			}
 			for (int j = 0; j < players[i].actions.Count; j++) {
+				if (j < players[i].actionsTaken) { continue; }
+				Debug.Log($"Adding action {players[i].actions[j]}");
 				actions.Add(players[i].actions[j]);
 			}
 		}
 		if (!allReady) { return; }
 
-		StartCoroutine(ResolveActions(actions));
+		resolver.AddActions(actions);
+		Debug.Log($"Running round");
+		StartCoroutine(ResolveActions());
 	}
 
 	IEnumerator SmoothMove(Player p) {
@@ -130,14 +139,10 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	int coroutineCount = 0;
-	IEnumerator ResolveActions(List<Action> actions) {
-		var resolver = new Resolver(grid, players, actions);
-
+	IEnumerator ResolveActions() {
 		while (!resolver.isComplete) {
 			resolver.Step();
 			foreach(var player in players) {
-				Debug.Log($"Checking player: {player.id} {player.position} {player.targetPosition}");
-
 				if (player.position != player.targetPosition) {
 					StartCoroutine(SmoothMove(player));
 					coroutineCount++;
@@ -153,7 +158,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 		bool isComplete = true;
 		foreach (var player in players) {
-			if (player.actionsTaken < player.actionCount) {
+			if (player.actionsTaken < player.card.actions) {
 				if (isComplete == true) {
 					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = player.id });
 				}
@@ -162,6 +167,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		if (isComplete) {
+			resolver.Reset();
 			cardSelectionIndex = 0;
 			UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
 			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });

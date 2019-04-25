@@ -566,12 +566,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 5
   hp: 3
+  doubleShot: 0
+  minimum2: 0
+  incrementalResolution: 1
   diagonalShots: 1
   diagonalMove: 1
   moveBeatsShot: 0
-  minimum2: 0
-  incrementalResolution: 0
-  doubleShot: 0
   obstacles: 0
   mines: 0
 --- !u!4 &1146221125
@@ -885,12 +885,14 @@ MonoBehaviour:
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      actionsTaken: 0
     - id: 0
       position: {x: 0, y: 0}
       targetPosition: {x: 0, y: 0}
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      actionsTaken: 0
     message: 
     phase: 0
     turn: 0

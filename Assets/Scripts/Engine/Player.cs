@@ -63,12 +63,14 @@ public class Player {
 		}
 
 		action.turn = turn++;
-		Debug.Log($"Setting turn to {turn}");
 		actions.Add(action);
 	}
 
 	public bool isReady {
 		get {
+			if (Rules.instance.incrementalResolution) {
+				return actionCount > actionsTaken || actionCount == card.actions;
+			}
 			return actionCount == card.actions;
 		}
 	}
