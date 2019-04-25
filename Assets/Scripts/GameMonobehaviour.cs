@@ -65,7 +65,26 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	Action action;
+	int cardSelectionIndex;
 	void Update() {
+		int actions = 0;
+		if (Input.GetKeyUp(KeyCode.Alpha1)) {
+			actions = 1;
+		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
+			actions = 2;
+		} else if(Input.GetKeyUp(KeyCode.Alpha3)) {
+			actions = 3;
+		}
+
+		if (actions  == 0) { return; }
+		try {
+			players[cardSelectionIndex].UseCard(actions);
+			UIDispatcher.Send(new DSUI.RenderAction());
+			if (++cardSelectionIndex >= players.Length) { cardSelectionIndex = 0; }
+		} catch(CardMissingException e) { }
+
+		return;
+
 		if (Input.GetKeyUp(KeyCode.Space)) {
 			action = new Action() { actionType = ActionType.SHOOT };
 		} else if (Input.GetKeyUp(KeyCode.Return)) {

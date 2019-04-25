@@ -24,11 +24,12 @@ public class Player {
 		for (int i = 0; i < cards.Count; i++) {
 			if (cards[i].actions == actions) {
 				cards.RemoveAt(i);
+				if (cards.Count == 0) { Deal(); }
 				return;
 			}
 		}
 
-		throw new System.Exception($"Couldn't find card with {actions} actions");
+		throw new CardMissingException($"Couldn't find card with {actions} actions");
 	}
 
 	void Deal() {
@@ -48,4 +49,8 @@ public class Player {
 	public void Move(Vector2Int vector) {
 		targetPosition = position + vector;
 	}
+}
+
+class CardMissingException : System.Exception {
+	public CardMissingException(string message) : base(message) { }
 }

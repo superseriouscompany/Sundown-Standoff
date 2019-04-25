@@ -7,7 +7,8 @@ namespace ReactiveUI {
 	public abstract class UIView : MonoBehaviour {
 		protected virtual void OnEnable() {
 			if (GetState() == null) {
-				Debug.LogError("UIState is null. Have you included a UIStateMonobehaviour in the scene?");
+				Debug.LogWarning("UIState is null. Have you included a UIStateMonobehaviour in the scene?");
+				return;
 			}
 			Subscribe();
 		}
