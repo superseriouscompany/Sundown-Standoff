@@ -13,7 +13,7 @@ public class Grid {
 		switch(action.actionType) {
 			case ActionType.MOVE:
 				if (isDiagonal && !Rules.instance.diagonalMove) { return false; }
-				var targetPosition = action.player.position + action.direction;
+				var targetPosition = ExpectedPosition(action) + action.direction;
 				return IsValidSquare(targetPosition);
 			case ActionType.SHOOT:
 				if (isDiagonal && !Rules.instance.diagonalShots) { return false; }
@@ -38,6 +38,16 @@ public class Grid {
 		}
 
 		return squares;
+	}
+
+	Vector2Int ExpectedPosition(Action action) {
+		var position = action.player.position;
+		foreach(var a in action.player.actions) {
+			if (a.actionType == ActionType.MOVE) {
+				position += a.direction;
+			}
+		}
+		return position;
 	}
 
 	bool IsValidSquare(Vector2Int vector) {
