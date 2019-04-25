@@ -43,12 +43,9 @@ public class Resolver {
 		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
 	}
 
-	public void Step() {
+	public void StepMovement() {
 		var roundMovement = actions.Where((a) => a.turn == round && a.actionType == ActionType.MOVE).ToList();
-		var roundShooting = actions.Where((a) => a.turn == round && a.actionType == ActionType.SHOOT).ToList();
-
-		Debug.Log($"Running {roundMovement.Count} moves and {roundShooting.Count} shots");
-
+		Debug.Log($"Running {roundMovement.Count} moves");
 		foreach (var action in roundMovement) {
 			var player = action.player;
 			player.Move(action.direction);
@@ -76,6 +73,12 @@ public class Resolver {
 				}
 			}
 		}
+	}
+
+	public void StepShots() {
+		var roundShooting = actions.Where((a) => a.turn == round && a.actionType == ActionType.SHOOT).ToList();
+
+		Debug.Log($"Running {roundShooting.Count} shots");
 
 		hitSquares.Clear();
 		foreach (var action in roundShooting) {

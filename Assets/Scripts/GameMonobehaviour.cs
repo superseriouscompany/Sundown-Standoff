@@ -47,6 +47,8 @@ public class GameMonobehaviour : MonoBehaviour {
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 
 		resolver = new Resolver(grid, players);
+
+		cardSelectionIndex = 0;
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -63,7 +65,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	int cardSelectionIndex;
 	void Update() {
 		if (Input.GetKeyUp(KeyCode.R)) {
-			StartCoroutine(Restart());
+			StartCoroutine(Restart(0));
 			return;
 		}
 
@@ -128,13 +130,15 @@ public class GameMonobehaviour : MonoBehaviour {
 			p.bounceBack = false;
 			yield return StartCoroutine(SmoothMove(p));
 			p.position = p.targetPosition;
+			coroutineCount--;
+		} else {
+			coroutineCount--;
 		}
-		coroutineCount--;
 		yield return null;
 	}
 
-	IEnumerator Restart() {
-		yield return new WaitForSeconds(1);
+	IEnumerator Restart(int seconds = 1) {
+		yield return new WaitForSeconds(seconds);
 		for (int i = 0; i < players.Length; i++) {
 			Destroy(players[i].gameObject);
 		}
@@ -144,7 +148,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	int coroutineCount = 0;
 	IEnumerator ResolveActions() {
 		while (!resolver.isComplete) {
-			resolver.Step();
+			resolver.StepMovement();
 			foreach(var player in players) {
 				if (player.position != player.targetPosition) {
 					StartCoroutine(SmoothMove(player));
@@ -152,15 +156,15 @@ public class GameMonobehaviour : MonoBehaviour {
 					player.position = player.targetPosition;
 				}
 			}
-			foreach(var square in resolver.hitSquares) {
-				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);
-			}
-
 			while (coroutineCount > 0) {
 				yield return null;
 			}
-			yield return new WaitForSeconds(turnDelay);
 
+			resolver.StepShots();
+			foreach (var square in resolver.hitSquares) {
+				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);
+			}
+			yield return new WaitForSeconds(turnDelay);
 			foreach (var square in resolver.hitSquares) {
 				gridSquares[square.x, square.y].color = new Color(1, 1, 1);
 			}
