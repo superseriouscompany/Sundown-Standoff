@@ -30,19 +30,26 @@ public class Resolver {
 		foreach (var action in roundMovement) {
 			var player = action.player;
 			player.Move(action.direction);
+		}
+
+		foreach (var player in players) {
+			if (player.targetPosition == player.position) { continue; }
 			foreach (var opponent in players) {
 				if (opponent.id == player.id) { continue; }
 				if (player.targetPosition == opponent.targetPosition) {
 					if (player.position == player.targetPosition) {
-						player.hp--;
+						Hit(player);
 						opponent.bounceBack = true;
 					} else if (opponent.position == opponent.targetPosition) {
-						opponent.hp--;
+						Hit(opponent);
 						player.bounceBack = true;
 					} else {
 						player.bounceBack = true;
 						opponent.bounceBack = true;
 					}
+				} else if (player.targetPosition == opponent.position && opponent.targetPosition == player.position) {
+					player.bounceBack = true;
+					opponent.bounceBack = true;
 				}
 			}
 		}
@@ -57,16 +64,19 @@ public class Resolver {
 				for (int j = 0; j < players.Length; j++) {
 					var position = players[j].bounceBack ? players[j].position : players[j].targetPosition;
 					if (squares[i] == position) {
-						var victimAnimator = players[j].gameObject.GetComponent<Animator>();
-						victimAnimator.SetTrigger("Hit");
-						Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
-						players[j].hp--;
-						UIDispatcher.Send(new DSUI.RenderAction());
+						Hit(players[j]);
 					}
 				}
 			}
 		}
 
 		round++;
+	}
+
+	void Hit(Player player) {
+		player.hp--;
+		var animator = player.gameObject.GetComponent<Animator>();
+		animator.SetTrigger("Hit");
+		UIDispatcher.Send(new DSUI.RenderAction());
 	}
 }

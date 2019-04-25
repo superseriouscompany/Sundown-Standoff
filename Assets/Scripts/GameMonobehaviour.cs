@@ -157,8 +157,10 @@ public class GameMonobehaviour : MonoBehaviour {
 		if (p.bounceBack) {
 			p.targetPosition = originSquare;
 			p.bounceBack = false;
-			yield return SmoothMove(p);
+			yield return StartCoroutine(SmoothMove(p));
+			p.position = p.targetPosition;
 		}
+		coroutineCount--;
 		yield return null;
 	}
 
@@ -170,6 +172,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		Start();
 	}
 
+	int coroutineCount = 0;
 	IEnumerator ResolveActions(List<Action> actions) {
 		var resolver = new Resolver(grid, players, actions);
 
@@ -180,8 +183,13 @@ public class GameMonobehaviour : MonoBehaviour {
 
 				if (player.position != player.targetPosition) {
 					StartCoroutine(SmoothMove(player));
+					coroutineCount++;
 					player.position = player.targetPosition;
 				}
+			}
+
+			while (coroutineCount > 0) {
+				yield return null;
 			}
 			yield return new WaitForSeconds(turnDelay);
 		}
