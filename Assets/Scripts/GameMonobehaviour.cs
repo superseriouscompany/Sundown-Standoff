@@ -82,7 +82,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 			if (actions == 0) { return; }
 			try {
-				players[cardSelectionIndex].UseCard(actions);
+				players[cardSelectionIndex].PickCard(actions);
 				cardSelectionIndex++;
 				UIDispatcher.Send(new DSUI.RenderAction());
 
@@ -90,8 +90,12 @@ public class GameMonobehaviour : MonoBehaviour {
 				if (cardSelectionIndex >= players.Length) {
 					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 					UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS});
+
+					for (int i = 0; i < players.Length; i++) {
+						players[i].Discard();
+					}
 				}
-			} catch (CardMissingException e) { }
+			} catch (CardMissingException) { }
 
 			return;
 		}
@@ -167,6 +171,8 @@ public class GameMonobehaviour : MonoBehaviour {
 			}
 			moveIndex = 0;
 			cardSelectionIndex = 0;
+			UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS});
+			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0});
 		}
 	}
 

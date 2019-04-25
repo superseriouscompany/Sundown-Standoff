@@ -10,6 +10,7 @@ public class Player {
 	public GameObject gameObject;
 	public int hp;
 	public List<Card> cards;
+	public Card card;
 
 	public Player(int id, int hp, Vector2Int position) {
 		this.id = id;
@@ -20,16 +21,20 @@ public class Player {
 		Deal();
 	}
 
-	public void UseCard(int actions) {
+	public void PickCard(int actions) {
 		for (int i = 0; i < cards.Count; i++) {
 			if (cards[i].actions == actions) {
-				cards.RemoveAt(i);
-				if (cards.Count == 0) { Deal(); }
+				card = cards[i];
 				return;
 			}
 		}
 
 		throw new CardMissingException($"Couldn't find card with {actions} actions");
+	}
+
+	public void Discard() {
+		cards.Remove(card);
+		if (cards.Count == 0) { Deal(); }
 	}
 
 	void Deal() {
