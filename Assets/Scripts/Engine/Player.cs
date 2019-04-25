@@ -7,6 +7,7 @@ public class Player {
 	public int id;
 	public Vector2Int position;
 	public Vector2Int targetPosition;
+	public bool bounceBack;
 	public GameObject gameObject;
 	public int hp;
 	public List<Card> cards;

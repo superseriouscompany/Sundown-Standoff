@@ -35,13 +35,13 @@ public class Resolver {
 				if (player.targetPosition == opponent.targetPosition) {
 					if (player.position == player.targetPosition) {
 						player.hp--;
-						opponent.targetPosition = opponent.position;
+						opponent.bounceBack = true;
 					} else if (opponent.position == opponent.targetPosition) {
 						opponent.hp--;
-						player.targetPosition = player.position;
+						player.bounceBack = true;
 					} else {
-						player.targetPosition = player.position;
-						opponent.targetPosition = opponent.position;
+						player.bounceBack = true;
+						opponent.bounceBack = true;
 					}
 				}
 			}
@@ -55,7 +55,8 @@ public class Resolver {
 
 			for (int i = 0; i < squares.Count; i++) {
 				for (int j = 0; j < players.Length; j++) {
-					if (squares[i] == players[j].targetPosition) {
+					var position = players[j].bounceBack ? players[j].position : players[j].targetPosition;
+					if (squares[i] == position) {
 						var victimAnimator = players[j].gameObject.GetComponent<Animator>();
 						victimAnimator.SetTrigger("Hit");
 						Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");

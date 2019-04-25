@@ -138,6 +138,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	IEnumerator SmoothMove(Player p) {
+		var originSquare = p.position;
 		var origin = GridToWorld(p.position);
 		var destination = GridToWorld(p.targetPosition);
 		var distance = (destination - origin).magnitude;
@@ -152,6 +153,12 @@ public class GameMonobehaviour : MonoBehaviour {
 		} while (deltaTime < distance / moveSpeed);
 		animator.SetBool("Move", false);
 		p.gameObject.transform.position = destination;
+
+		if (p.bounceBack) {
+			p.targetPosition = originSquare;
+			p.bounceBack = false;
+			yield return SmoothMove(p);
+		}
 		yield return null;
 	}
 
