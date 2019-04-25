@@ -751,10 +751,12 @@ MonoBehaviour:
   doubleShot: 0
   obstacles: 0
   mines: 0
-  player: {fileID: 6210939893047752025, guid: bc97aa158de294208b5bf89d4fc5ea08, type: 3}
+  playerPrefab: {fileID: 6210939893047752025, guid: bc97aa158de294208b5bf89d4fc5ea08,
+    type: 3}
   gridSquare: {fileID: 7386702340655022546, guid: c7025c78b7df340c396f59f31d26a7a3,
     type: 3}
-  speed: 8
+  turnDelay: 1
+  moveSpeed: 1
   gridSquareWidth: 1
 --- !u!4 &1999328117
 Transform:
@@ -813,6 +815,8 @@ MonoBehaviour:
       gameObject: {fileID: 0}
       hp: 0
     message: 
+    phase: 0
+    turn: 0
 --- !u!4 &2106322996
 Transform:
   m_ObjectHideFlags: 0
@@ -896,8 +900,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4293185755
-  m_fontColor: {r: 0.86085296, g: 0.81590426, b: 0.8962264, a: 1}
+    rgba: 4293251292
+  m_fontColor: {r: 0.8627451, g: 0.8156863, b: 0.8980392, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

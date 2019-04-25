@@ -16,9 +16,10 @@ public class GameMonobehaviour : MonoBehaviour {
 	public bool obstacles;
 	public bool mines;
 
-	public GameObject player;
+	public GameObject playerPrefab;
 	public GameObject gridSquare;
-	public float speed = 1f;
+	public float turnDelay = 1f;
+	public float moveSpeed = 1f;
 	public float gridSquareWidth = 0.6f;
 
 	Player[] players = new Player[2];
@@ -29,8 +30,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		players[1] = new Player(1, hp, new Vector2Int(gridSize - 1, gridSize / 2));
 
 		for (int i = 0; i < players.Length; i++) {
-			var playerObject = Instantiate(player);
+			var playerObject = Instantiate(playerPrefab);
 			playerObject.transform.position = GridToWorld(players[i].position);
+			playerObject.transform.localScale = new Vector3(2 * gridSquareWidth, 2 * gridSquareWidth, 2 * gridSquareWidth);
 			if (i == 1) {
 				playerObject.GetComponent<SpriteRenderer>().flipX = true;
 			}
@@ -43,6 +45,7 @@ public class GameMonobehaviour : MonoBehaviour {
 			for (int j = 0; j < gridSize; j++) {
 				var square = Instantiate(gridSquare);
 				square.transform.position = GridToWorld(i, j);
+				square.transform.localScale = new Vector3(7 * gridSquareWidth, 7 * gridSquareWidth, 7 * gridSquareWidth);
 				square.transform.parent = gridCnr.transform;
 			}
 		}
@@ -59,8 +62,8 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	Vector2 GridToWorld(Vector2Int vector) {
 		return new Vector2(
-			vector.x * gridSquareWidth - 2.5f + gridSquareWidth / 2,
-			vector.y * gridSquareWidth - 2.5f + gridSquareWidth / 2
+			vector.x * gridSquareWidth - (gridSize * gridSquareWidth / 2) + gridSquareWidth / 2,
+			vector.y * gridSquareWidth - (gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1
 		);
 	}
 
@@ -130,7 +133,6 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		Log($"Action received from player {action.player.id}");
 		action.player.AddAction(action);
 
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0});
@@ -145,12 +147,47 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 		if (!allReady) { return; }
 
-		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
-		for (int i = 0; i < actions.Count; i++) {
-			var player = players[actions[i].player.id];
-			Log($"Doing action: {actions[i]}");
+		StartCoroutine(ResolveActions(actions));
+	}
 
-			switch(actions[i].actionType) {
+	IEnumerator SmoothMove(Player p) {
+		var origin = GridToWorld(p.position);
+		var destination = GridToWorld(p.targetPosition);
+		var distance = (destination - origin).magnitude;
+		var startTime = Time.time;
+		var animator = p.gameObject.GetComponent<Animator>();
+		animator.SetBool("Move", true);
+		float deltaTime;
+		do {
+			deltaTime = Time.time - startTime;
+			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * moveSpeed);
+			yield return null;
+		} while (deltaTime < distance / moveSpeed);
+		animator.SetBool("Move", false);
+		p.gameObject.transform.position = destination;
+		yield return null;
+	}
+
+	IEnumerator Restart() {
+		yield return new WaitForSeconds(1);
+		for (int i = 0; i < players.Length; i++) {
+			Destroy(players[i].gameObject);
+		}
+		Start();
+	}
+
+	IEnumerator ResolveActions(List<Action> actions) {
+		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
+		int turn = 0;
+		for (int i = 0; i < actions.Count; i++) {
+			var action = actions[i];
+			var player = players[action.player.id];
+
+			if (action.turn > turn) {
+				turn = action.turn;
+				yield return new WaitForSeconds(turnDelay);
+			}
+			switch (actions[i].actionType) {
 				case ActionType.MOVE:
 					player.Move(actions[i].direction);
 					StartCoroutine(SmoothMove(player));
@@ -170,7 +207,7 @@ public class GameMonobehaviour : MonoBehaviour {
 								players[j].hp--;
 								UIDispatcher.Send(new DSUI.RenderAction());
 								if (players[j].hp <= 0) {
-									StartCoroutine(Restart());
+									yield return StartCoroutine(Restart());
 								}
 							}
 						}
@@ -180,34 +217,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		cardSelectionIndex = 0;
-		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS});
-		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0});
-	}
+		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 
-	IEnumerator SmoothMove(Player p) {
-		var origin = GridToWorld(p.position);
-		var destination = GridToWorld(p.targetPosition);
-		var distance = (destination - origin).magnitude;
-		var startTime = Time.time;
-		var animator = p.gameObject.GetComponent<Animator>();
-		animator.SetBool("Move", true);
-		float deltaTime;
-		do {
-			deltaTime = Time.time - startTime;
-			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * speed);
-			yield return null;
-		} while (deltaTime < distance / speed);
-		animator.SetBool("Move", false);
-		p.gameObject.transform.position = destination;
-		yield return null;
-	}
-
-	IEnumerator Restart() {
-		yield return new WaitForSeconds(1);
-		for (int i = 0; i < players.Length; i++) {
-			Destroy(players[i].gameObject);
-		}
-		Start();
 	}
 
 	void Log(string msg) {
