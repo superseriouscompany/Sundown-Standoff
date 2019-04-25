@@ -24,33 +24,45 @@ public class Resolver {
 	}
 
 	public void Step() {
-		var roundActions = actions.Where((a) => a.turn == round).ToList();
+		var roundMovement = actions.Where((a) => a.turn == round && a.actionType == ActionType.MOVE).ToList();
+		var roundShooting = actions.Where((a) => a.turn == round && a.actionType == ActionType.SHOOT).ToList();
 
-		foreach (var action in roundActions) {
+		foreach (var action in roundMovement) {
 			var player = action.player;
-
-			switch (action.actionType) {
-				case ActionType.MOVE:
-					player.Move(action.direction);
-					Debug.Log($"Changing action on player: {player.id} {action.direction}");
-					break;
-				case ActionType.SHOOT:
-					var squares = grid.Raycast(action);
-					var animator = player.gameObject.GetComponent<Animator>();
-					animator.SetTrigger("Shoot");
-
-					for (int i = 0; i < squares.Count; i++) {
-						for (int j = 0; j < players.Length; j++) {
-							if (squares[i] == players[j].targetPosition) {
-								var victimAnimator = players[j].gameObject.GetComponent<Animator>();
-								victimAnimator.SetTrigger("Hit");
-								Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
-								players[j].hp--;
-								UIDispatcher.Send(new DSUI.RenderAction());
-							}
-						}
+			player.Move(action.direction);
+			foreach (var opponent in players) {
+				if (opponent.id == player.id) { continue; }
+				if (player.targetPosition == opponent.targetPosition) {
+					if (player.position == player.targetPosition) {
+						player.hp--;
+						opponent.targetPosition = opponent.position;
+					} else if (opponent.position == opponent.targetPosition) {
+						opponent.hp--;
+						player.targetPosition = player.position;
+					} else {
+						player.targetPosition = player.position;
+						opponent.targetPosition = opponent.position;
 					}
-					break;
+				}
+			}
+		}
+
+		foreach (var action in roundShooting) {
+			var player = action.player;
+			var squares = grid.Raycast(action);
+			var animator = player.gameObject.GetComponent<Animator>();
+			animator.SetTrigger("Shoot");
+
+			for (int i = 0; i < squares.Count; i++) {
+				for (int j = 0; j < players.Length; j++) {
+					if (squares[i] == players[j].targetPosition) {
+						var victimAnimator = players[j].gameObject.GetComponent<Animator>();
+						victimAnimator.SetTrigger("Hit");
+						Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
+						players[j].hp--;
+						UIDispatcher.Send(new DSUI.RenderAction());
+					}
+				}
 			}
 		}
 

@@ -92,9 +92,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		Action action;
-		if (Input.GetKeyUp(KeyCode.Space)) {
+		if (Input.GetKeyDown(KeyCode.Space)) {
 			action = new Action() { actionType = ActionType.SHOOT };
-		} else if (Input.GetKeyUp(KeyCode.Return)) {
+		} else if (Input.GetKeyDown(KeyCode.Return)) {
 			action = new Action() { actionType = ActionType.MOVE };
 		} else {
 			return;
