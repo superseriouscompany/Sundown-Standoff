@@ -7,6 +7,10 @@ public class Action {
 	public Player player;
 	public int turn;
 	public Vector2Int direction;
+
+	public override string ToString() {
+		return $"Action {actionType} {direction} for player {player.id} on turn {turn}";
+	}
 }
 
 public enum ActionType {

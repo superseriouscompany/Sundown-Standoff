@@ -24,9 +24,6 @@ public class GameMonobehaviour : MonoBehaviour {
 	Player[] players = new Player[2];
 	Grid grid;
 
-	Action[] moves = new Action[2];
-	int moveIndex;
-
 	void Start() {
 		players[0] = new Player(0, hp, new Vector2Int(0, gridSize / 2));
 		players[1] = new Player(1, hp, new Vector2Int(gridSize - 1, gridSize / 2));
@@ -67,29 +64,33 @@ public class GameMonobehaviour : MonoBehaviour {
 		);
 	}
 
-	Action action;
 	int cardSelectionIndex;
 	void Update() {
+		if (Input.GetKeyUp(KeyCode.R)) {
+			StartCoroutine(Restart());
+			return;
+		}
+
 		if (cardSelectionIndex < players.Length) {
-			int actions = 0;
+			int numActions = 0;
 			if (Input.GetKeyUp(KeyCode.Alpha1)) {
-				actions = 1;
+				numActions = 1;
 			} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
-				actions = 2;
+				numActions = 2;
 			} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
-				actions = 3;
+				numActions = 3;
 			}
 
-			if (actions == 0) { return; }
+			if (numActions == 0) { return; }
 			try {
-				players[cardSelectionIndex].PickCard(actions);
+				players[cardSelectionIndex].PickCard(numActions);
 				cardSelectionIndex++;
 				UIDispatcher.Send(new DSUI.RenderAction());
 
 				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = cardSelectionIndex });
 				if (cardSelectionIndex >= players.Length) {
 					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
-					UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS});
+					UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS });
 
 					for (int i = 0; i < players.Length; i++) {
 						players[i].Discard();
@@ -100,7 +101,7 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-
+		Action action;
 		if (Input.GetKeyUp(KeyCode.Space)) {
 			action = new Action() { actionType = ActionType.SHOOT };
 		} else if (Input.GetKeyUp(KeyCode.Return)) {
@@ -123,57 +124,64 @@ public class GameMonobehaviour : MonoBehaviour {
 			action.direction.y--;
 		}
 
-		action.player = players[moveIndex];
-
+		action.player = players[0].isReady ? players[1] : players[0];
 		if (!grid.Validate(action)) {
 			Log("Action rejected");
 			return;
 		}
 
-		Debug.Log($"Action {action.actionType} {action.direction} received for player {action.player.id}");
-		Log($"Action received for player {action.player.id + 1}");
-		moves[moveIndex++] = action;
+		Log($"Action received from player {action.player.id}");
+		action.player.AddAction(action);
 
-		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = moveIndex });
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0});
 
-		if (moveIndex >= moves.Length) {
-			System.Array.Sort(moves, (a, b) => a.actionType.CompareTo(b.actionType));
-			for (int i = 0; i < moves.Length; i++) {
-				var player = players[moves[i].player.id];
-				switch(moves[i].actionType) {
-					case ActionType.MOVE:
-						player.Move(moves[i].direction);
-						StartCoroutine(
-							SmoothMove(player)
-						);
-						break;
-					case ActionType.SHOOT:
-						var squares = grid.Raycast(moves[i]);
-						var animator = player.gameObject.GetComponent<Animator>();
-						animator.SetTrigger("Shoot");
+		bool allReady = true;
+		List<Action> actions = new List<Action>();
+		for (int i = 0; i < players.Length; i++) {
+			if (!players[i].isReady) { allReady = false; }
+			for (int j = 0; j < players[i].actions.Count; j++) {
+				actions.Add(players[i].actions[j]);
+			}
+		}
+		if (!allReady) { return; }
 
-						for (int x = 0; x < squares.Count; x++) {
-							for (int j = 0; j < players.Length; j++) {
-								if (squares[x] == players[j].targetPosition) {
-									var victimAnimator = players[j].gameObject.GetComponent<Animator>();
-									victimAnimator.SetTrigger("Hit");
-									Log($"Player {player.id} hits player {players[j].id} with a shot!");
-									players[j].hp--;
-									UIDispatcher.Send(new DSUI.RenderAction());
-									if (players[j].hp <= 0) {
-										StartCoroutine(Restart());
-									}
+		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
+		for (int i = 0; i < actions.Count; i++) {
+			var player = players[actions[i].player.id];
+			Log($"Doing action: {actions[i]}");
+
+			switch(actions[i].actionType) {
+				case ActionType.MOVE:
+					player.Move(actions[i].direction);
+					StartCoroutine(SmoothMove(player));
+					player.position = player.targetPosition;
+					break;
+				case ActionType.SHOOT:
+					var squares = grid.Raycast(actions[i]);
+					var animator = player.gameObject.GetComponent<Animator>();
+					animator.SetTrigger("Shoot");
+
+					for (int x = 0; x < squares.Count; x++) {
+						for (int j = 0; j < players.Length; j++) {
+							if (squares[x] == players[j].targetPosition) {
+								var victimAnimator = players[j].gameObject.GetComponent<Animator>();
+								victimAnimator.SetTrigger("Hit");
+								Log($"Player {player.id} hits player {players[j].id} with a shot!");
+								players[j].hp--;
+								UIDispatcher.Send(new DSUI.RenderAction());
+								if (players[j].hp <= 0) {
+									StartCoroutine(Restart());
 								}
 							}
 						}
-						break;
-				}
+					}
+					break;
 			}
-			moveIndex = 0;
-			cardSelectionIndex = 0;
-			UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS});
-			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0});
 		}
+
+		cardSelectionIndex = 0;
+		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS});
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0});
 	}
 
 	IEnumerator SmoothMove(Player p) {
@@ -191,7 +199,6 @@ public class GameMonobehaviour : MonoBehaviour {
 		} while (deltaTime < distance / speed);
 		animator.SetBool("Move", false);
 		p.gameObject.transform.position = destination;
-		p.position = p.targetPosition;
 		yield return null;
 	}
 

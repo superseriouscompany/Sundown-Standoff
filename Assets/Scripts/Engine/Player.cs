@@ -11,6 +11,9 @@ public class Player {
 	public int hp;
 	public List<Card> cards;
 	public Card card;
+	public List<Action> actions = new List<Action>();
+
+	int turn;
 
 	public Player(int id, int hp, Vector2Int position) {
 		this.id = id;
@@ -21,20 +24,38 @@ public class Player {
 		Deal();
 	}
 
-	public void PickCard(int actions) {
+	public void PickCard(int numActions) {
 		for (int i = 0; i < cards.Count; i++) {
-			if (cards[i].actions == actions) {
+			if (cards[i].actions == numActions) {
 				card = cards[i];
+				actions.Clear();
 				return;
 			}
 		}
 
-		throw new CardMissingException($"Couldn't find card with {actions} actions");
+		throw new CardMissingException($"Couldn't find card with {numActions} actions");
 	}
 
 	public void Discard() {
 		cards.Remove(card);
+		turn = 0;
 		if (cards.Count == 0) { Deal(); }
+	}
+
+	public void AddAction(Action action) {
+		if (actions.Count >= card.actions) {
+			throw new TooManyActionsException($"Tried to add an action but we already have {actions.Count} which is more than {card.actions}");
+		}
+
+		action.turn = turn++;
+		Debug.Log($"Setting turn to {turn}");
+		actions.Add(action);
+	}
+
+	public bool isReady {
+		get {
+			return actions.Count == card.actions;
+		}
 	}
 
 	void Deal() {
@@ -58,4 +79,8 @@ public class Player {
 
 class CardMissingException : System.Exception {
 	public CardMissingException(string message) : base(message) { }
+}
+
+class TooManyActionsException : System.Exception {
+	public TooManyActionsException(string message) : base(message) { }
 }

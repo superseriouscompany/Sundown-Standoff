@@ -9,21 +9,32 @@ public class PlayerView : UIView {
 	public int id;
 
 	public override void Render(UIState state) {
-		if (state.players[id] == null || state.players[id].cards == null) { return; }
-
-		var myTurn = state.phase == Phase.CARDS && state.turn == id;
+		var player = state.players[id];
+		if (player == null || player.cards == null) { return; }
 
 		var sb = new StringBuilder();
+		var myTurn = state.turn == id;
+
 		if (myTurn) {
 			sb.Append("<color=#D1AF36>");
 		}
-		for (int i = 0; i < state.players[id].cards.Count; i++) {
-			sb.Append($"{state.players[id].cards[i].actions} ");
+
+		switch(state.phase) {
+			case Phase.CARDS:
+				sb.Append("Cards: ");
+				for (int i = 0; i < player.cards.Count; i++) {
+					sb.Append($"{player.cards[i].actions} ");
+				}
+				break;
+			case Phase.ACTIONS:
+				sb.Append("Actions: ");
+				sb.Append(player.actions.Count + " / " + player.card.actions);
+				break;
 		}
 		if (myTurn) {
 			sb.Append("</color>");
 		}
 
-		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\nCards: {sb}";
+		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\n{sb}";
 	}
 }
