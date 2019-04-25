@@ -8,10 +8,16 @@ public class Grid {
 	public bool Validate(Action action) {
 		if (action.direction.x == 0 && action.direction.y == 0) { return false; }
 
+		var isDiagonal = action.direction.x != 0 && action.direction.y != 0;
+
 		switch(action.actionType) {
 			case ActionType.MOVE:
+				if (isDiagonal && !Rules.instance.diagonalMove) { return false; }
 				var targetPosition = action.player.position + action.direction;
 				return IsValidSquare(targetPosition);
+			case ActionType.SHOOT:
+				if (isDiagonal && !Rules.instance.diagonalShots) { return false; }
+				return true;
 			default:
 				return true;
 		}
