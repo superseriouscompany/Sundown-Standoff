@@ -9,6 +9,14 @@ namespace DSUI {
 		}
 	}
 
+	public struct SetMessageAction : IUIAction {
+		public string message;
+
+		public void Execute(UIState state) {
+			state.message = message;
+		}
+	}
+
 	public struct RenderAction : IUIAction {
 		public void Execute(UIState state) { }
 	}

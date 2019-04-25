@@ -91,11 +91,12 @@ public class GameMonobehaviour : MonoBehaviour {
 		action.player = players[moveIndex];
 
 		if (!grid.Validate(action)) {
-			Debug.Log("Action rejected");
+			Log("Action rejected");
 			return;
 		}
 
 		Debug.Log($"Action {action.actionType} {action.direction} received for player {action.player.id}");
+		Log($"Action received for player {action.player.id + 1}");
 		moves[moveIndex++] = action;
 
 		if (moveIndex >= moves.Length) {
@@ -114,7 +115,7 @@ public class GameMonobehaviour : MonoBehaviour {
 						for (int x = 0; x < squares.Count; x++) {
 							for (int j = 0; j < players.Length; j++) {
 								if (squares[x] == players[j].targetPosition) {
-									Debug.Log($"Player {player.id} hits player {players[j].id} with a shot!");
+									Log($"Player {player.id} hits player {players[j].id} with a shot!");
 									players[j].hp--;
 									UIDispatcher.Send(new DSUI.RenderAction());
 									if (players[j].hp <= 0) {
@@ -153,5 +154,10 @@ public class GameMonobehaviour : MonoBehaviour {
 			Destroy(players[i].gameObject);
 		}
 		Start();
+	}
+
+	void Log(string msg) {
+		Debug.Log(msg);
+		UIDispatcher.Send(new DSUI.SetMessageAction() { message = msg });
 	}
 }
