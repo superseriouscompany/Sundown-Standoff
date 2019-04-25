@@ -830,7 +830,7 @@ MonoBehaviour:
     type: 3}
   gridSquare: {fileID: 7386702340655022546, guid: c7025c78b7df340c396f59f31d26a7a3,
     type: 3}
-  turnDelay: 0.25
+  turnDelay: 0.6
   moveSpeed: 2
   gridSquareWidth: 1
 --- !u!4 &1999328117
