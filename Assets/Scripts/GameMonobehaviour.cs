@@ -10,6 +10,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	public float moveSpeed = 1f;
 	public float gridSquareWidth = 0.6f;
 
+	SpriteRenderer[,] gridSquares;
 	Player[] players = new Player[2];
 	Grid grid;
 	Resolver resolver;
@@ -30,12 +31,14 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		var gridCnr = new GameObject("Grid");
+		gridSquares = new SpriteRenderer[Rules.instance.gridSize, Rules.instance.gridSize];
 		for (int i = 0; i < Rules.instance.gridSize; i++) {
 			for (int j = 0; j < Rules.instance.gridSize; j++) {
 				var square = Instantiate(gridSquare);
 				square.transform.position = GridToWorld(i, j);
 				square.transform.localScale = new Vector3(7 * gridSquareWidth, 7 * gridSquareWidth, 7 * gridSquareWidth);
 				square.transform.parent = gridCnr.transform;
+				gridSquares[i, j] = square.GetComponent<SpriteRenderer>();
 			}
 		}
 
@@ -149,11 +152,18 @@ public class GameMonobehaviour : MonoBehaviour {
 					player.position = player.targetPosition;
 				}
 			}
+			foreach(var square in resolver.hitSquares) {
+				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);
+			}
 
 			while (coroutineCount > 0) {
 				yield return null;
 			}
 			yield return new WaitForSeconds(turnDelay);
+
+			foreach (var square in resolver.hitSquares) {
+				gridSquares[square.x, square.y].color = new Color(1, 1, 1);
+			}
 		}
 
 		bool isComplete = true;

@@ -10,6 +10,8 @@ public class Resolver {
 	Grid grid;
 	Player[] players;
 
+	public List<Vector2Int> hitSquares = new List<Vector2Int>();
+
 	public bool isComplete {
 		get {
 			return actions.FirstOrDefault((a) => a.turn == round) == null;
@@ -75,9 +77,11 @@ public class Resolver {
 			}
 		}
 
+		hitSquares.Clear();
 		foreach (var action in roundShooting) {
 			var player = action.player;
 			var squares = grid.Raycast(action);
+			hitSquares.AddRange(squares);
 			var animator = player.gameObject.GetComponent<Animator>();
 			animator.SetTrigger("Shoot");
 
