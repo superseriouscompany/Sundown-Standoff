@@ -4,18 +4,6 @@ using UnityEngine;
 using ReactiveUI;
 
 public class GameMonobehaviour : MonoBehaviour {
-	public int gridSize = 5;
-	public int hp = 3;
-
-	public bool diagonalShots;
-	public bool diagonalMove;
-	public bool moveBeatsShot;
-	public bool minimum2;
-	public bool incrementalResolution;
-	public bool doubleShot;
-	public bool obstacles;
-	public bool mines;
-
 	public GameObject playerPrefab;
 	public GameObject gridSquare;
 	public float turnDelay = 1f;
@@ -26,8 +14,8 @@ public class GameMonobehaviour : MonoBehaviour {
 	Grid grid;
 
 	void Start() {
-		players[0] = new Player(0, hp, new Vector2Int(0, gridSize / 2));
-		players[1] = new Player(1, hp, new Vector2Int(gridSize - 1, gridSize / 2));
+		players[0] = new Player(0, Rules.instance.hp, new Vector2Int(0, Rules.instance.gridSize / 2));
+		players[1] = new Player(1, Rules.instance.hp, new Vector2Int(Rules.instance.gridSize - 1, Rules.instance.gridSize / 2));
 
 		for (int i = 0; i < players.Length; i++) {
 			var playerObject = Instantiate(playerPrefab);
@@ -41,8 +29,8 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		var gridCnr = new GameObject("Grid");
-		for (int i = 0; i < gridSize; i++) {
-			for (int j = 0; j < gridSize; j++) {
+		for (int i = 0; i < Rules.instance.gridSize; i++) {
+			for (int j = 0; j < Rules.instance.gridSize; j++) {
 				var square = Instantiate(gridSquare);
 				square.transform.position = GridToWorld(i, j);
 				square.transform.localScale = new Vector3(7 * gridSquareWidth, 7 * gridSquareWidth, 7 * gridSquareWidth);
@@ -50,8 +38,7 @@ public class GameMonobehaviour : MonoBehaviour {
 			}
 		}
 
-		grid = new Grid() { gridSize = gridSize };
-
+		grid = new Grid() { gridSize = Rules.instance.gridSize };
 		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 	}
@@ -62,8 +49,8 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	Vector2 GridToWorld(Vector2Int vector) {
 		return new Vector2(
-			vector.x * gridSquareWidth - (gridSize * gridSquareWidth / 2) + gridSquareWidth / 2,
-			vector.y * gridSquareWidth - (gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1
+			vector.x * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2,
+			vector.y * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1
 		);
 	}
 
@@ -135,7 +122,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 		action.player.AddAction(action);
 
-		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0});
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = players[0].isReady ? 1 : 0 });
 
 		bool allReady = true;
 		List<Action> actions = new List<Action>();
@@ -177,49 +164,30 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	IEnumerator ResolveActions(List<Action> actions) {
-		actions.Sort((a, b) => a.turn == b.turn ? a.actionType.CompareTo(b.actionType) : a.turn.CompareTo(b.turn));
-		int turn = 0;
-		for (int i = 0; i < actions.Count; i++) {
-			var action = actions[i];
-			var player = players[action.player.id];
+		var resolver = new Resolver(grid, players, actions);
 
-			if (action.turn > turn) {
-				turn = action.turn;
-				yield return new WaitForSeconds(turnDelay);
-			}
-			switch (actions[i].actionType) {
-				case ActionType.MOVE:
-					player.Move(actions[i].direction);
+		while (!resolver.isComplete) {
+			resolver.Step();
+			foreach(var player in players) {
+				Debug.Log($"Checking player: {player.id} {player.position} {player.targetPosition}");
+
+				if (player.position != player.targetPosition) {
 					StartCoroutine(SmoothMove(player));
 					player.position = player.targetPosition;
-					break;
-				case ActionType.SHOOT:
-					var squares = grid.Raycast(actions[i]);
-					var animator = player.gameObject.GetComponent<Animator>();
-					animator.SetTrigger("Shoot");
-
-					for (int x = 0; x < squares.Count; x++) {
-						for (int j = 0; j < players.Length; j++) {
-							if (squares[x] == players[j].targetPosition) {
-								var victimAnimator = players[j].gameObject.GetComponent<Animator>();
-								victimAnimator.SetTrigger("Hit");
-								Log($"Player {player.id} hits player {players[j].id} with a shot!");
-								players[j].hp--;
-								UIDispatcher.Send(new DSUI.RenderAction());
-								if (players[j].hp <= 0) {
-									yield return StartCoroutine(Restart());
-								}
-							}
-						}
-					}
-					break;
+				}
 			}
+			yield return new WaitForSeconds(turnDelay);
 		}
 
 		cardSelectionIndex = 0;
 		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 
+		foreach (var player in players) {
+			if (player.hp <= 0) {
+				yield return StartCoroutine(Restart());
+			}
+		}
 	}
 
 	void Log(string msg) {
