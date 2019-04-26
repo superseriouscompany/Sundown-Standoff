@@ -13,6 +13,7 @@ public class AssetImporter : AssetPostprocessor {
 
 	// https://forum.unity.com/threads/sprite-editor-automatic-slicing-by-script.320776/
 	void OnPostprocessTexture(Texture2D texture) {
+		return;
 		Debug.Log("Texture2D: (" + texture.width + "x" + texture.height + ")");
 
 		int spriteSize = 64;
@@ -37,6 +38,7 @@ public class AssetImporter : AssetPostprocessor {
 	}
 
 	void OnPostprocessSprites(Texture2D texture, Sprite[] sprites) {
+		return;
 		Debug.Log("Sprites: " + sprites.Length);
 	}
 }
