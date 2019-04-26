@@ -87,12 +87,13 @@ public class Resolver {
 			hitSquares.AddRange(squares);
 			var animator = player.gameObject.GetComponent<Animator>();
 			animator.SetTrigger("Shoot");
+			Maestro.instance.PlayGunshot();
 
 			for (int i = 0; i < squares.Count; i++) {
 				for (int j = 0; j < players.Length; j++) {
 					var position = players[j].bounceBack ? players[j].position : players[j].targetPosition;
 					if (squares[i] == position) {
-						Hit(players[j]);
+						Coroutines.Start(Hit(players[j]));
 					}
 				}
 			}
@@ -103,10 +104,13 @@ public class Resolver {
 		round++;
 	}
 
-	void Hit(Player player) {
+	IEnumerator Hit(Player player) {
+		yield return new WaitForSecondsRealtime(0.8f);
 		player.hp--;
 		var animator = player.gameObject.GetComponent<Animator>();
 		animator.SetTrigger("Hit");
+		yield return new WaitForSecondsRealtime(0.1f);
+		Maestro.instance.PlayHit();
 		UIDispatcher.Send(new DSUI.RenderAction());
 	}
 }

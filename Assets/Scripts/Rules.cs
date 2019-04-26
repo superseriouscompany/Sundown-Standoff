@@ -15,6 +15,11 @@ public class Rules : MonoBehaviour {
 	public bool obstacles;
 	public bool mines;
 
+	public bool debugPositions;
+
+	public float turnDelay = 1f;
+	public float moveSpeed = 1f;
+
 	public static Rules instance;
 
 	void Awake() {

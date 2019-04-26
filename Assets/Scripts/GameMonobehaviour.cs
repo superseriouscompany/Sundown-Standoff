@@ -6,18 +6,27 @@ using ReactiveUI;
 public class GameMonobehaviour : MonoBehaviour {
 	public GameObject playerPrefab;
 	public GameObject gridSquare;
-	public float turnDelay = 1f;
-	public float moveSpeed = 1f;
 	public float gridSquareWidth = 0.6f;
 
 	SpriteRenderer[,] gridSquares;
 	Player[] players = new Player[2];
 	Grid grid;
 	Resolver resolver;
+	int coroutineCount;
+
+	void Awake() {
+		gameObject.AddComponent<Coroutines>();
+	}
 
 	void Start() {
-		players[0] = new Player(0, Rules.instance.hp, new Vector2Int(0, Rules.instance.gridSize / 2));
-		players[1] = new Player(1, Rules.instance.hp, new Vector2Int(Rules.instance.gridSize - 1, Rules.instance.gridSize / 2));
+		if (Rules.instance.debugPositions) {
+			players[0] = new Player(0, Rules.instance.hp, new Vector2Int(2, Rules.instance.gridSize / 2));
+			players[1] = new Player(1, Rules.instance.hp, new Vector2Int(3, Rules.instance.gridSize / 2));
+		} else {
+			players[0] = new Player(0, Rules.instance.hp, new Vector2Int(0, Rules.instance.gridSize / 2));
+			players[1] = new Player(1, Rules.instance.hp, new Vector2Int(Rules.instance.gridSize - 1, Rules.instance.gridSize / 2));
+		}
+
 
 		for (int i = 0; i < players.Length; i++) {
 			var playerObject = Instantiate(playerPrefab);
@@ -49,6 +58,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		resolver = new Resolver(grid, players);
 
 		cardSelectionIndex = 0;
+		coroutineCount = 0;
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -119,9 +129,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		float deltaTime;
 		do {
 			deltaTime = Time.time - startTime;
-			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * moveSpeed);
+			p.gameObject.transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * Rules.instance.moveSpeed);
 			yield return null;
-		} while (deltaTime < distance / moveSpeed);
+		} while (deltaTime < distance / Rules.instance.moveSpeed);
 		animator.SetBool("Move", false);
 		p.gameObject.transform.position = destination;
 
@@ -130,7 +140,6 @@ public class GameMonobehaviour : MonoBehaviour {
 			p.bounceBack = false;
 			yield return StartCoroutine(SmoothMove(p));
 			p.position = p.targetPosition;
-			coroutineCount--;
 		} else {
 			coroutineCount--;
 		}
@@ -145,7 +154,6 @@ public class GameMonobehaviour : MonoBehaviour {
 		Start();
 	}
 
-	int coroutineCount = 0;
 	IEnumerator ResolveActions() {
 		while (!resolver.isComplete) {
 			resolver.StepMovement();
@@ -156,15 +164,19 @@ public class GameMonobehaviour : MonoBehaviour {
 					player.position = player.targetPosition;
 				}
 			}
+
+			Debug.Log($"COROUTINE COUNT IS INITIALLY {coroutineCount}");
 			while (coroutineCount > 0) {
 				yield return null;
 			}
+
+			Debug.Log("RESOLVING SHOTS");
 
 			resolver.StepShots();
 			foreach (var square in resolver.hitSquares) {
 				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);
 			}
-			yield return new WaitForSeconds(turnDelay);
+			yield return new WaitForSeconds(Rules.instance.turnDelay);
 			foreach (var square in resolver.hitSquares) {
 				gridSquares[square.x, square.y].color = new Color(1, 1, 1);
 			}
@@ -243,7 +255,7 @@ public class GameMonobehaviour : MonoBehaviour {
 			if (cardSelectionIndex >= players.Length) {
 				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 				UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS });
-
+				coroutineCount = 0;
 				for (int i = 0; i < players.Length; i++) {
 					players[i].Discard();
 				}
