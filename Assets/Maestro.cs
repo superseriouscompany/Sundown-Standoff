@@ -8,6 +8,8 @@ public class Maestro : MonoBehaviour {
 	public static Maestro instance;
 
 	public AudioClip gunShot;
+	public AudioClip bulletHit;
+	public AudioClip movement;
 	public AudioClip[] deaths;
 	public AudioClip[] hits;
 
@@ -23,6 +25,7 @@ public class Maestro : MonoBehaviour {
 
 	public void PlayHit() {
 		var hitIndex = Random.Range(0, hits.Length);
+		player.PlayOneShot(bulletHit);
 		player.PlayOneShot(hits[hitIndex]);
 	}
 
@@ -30,5 +33,9 @@ public class Maestro : MonoBehaviour {
 		var deathIndex = Random.Range(0, deaths.Length);
 		player.PlayOneShot(deaths[deathIndex]);
 	}
+
+	public void PlayMovement() {
+		player.PlayOneShot(movement);	}
+
 }
 

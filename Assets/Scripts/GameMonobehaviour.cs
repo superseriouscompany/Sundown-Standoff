@@ -145,6 +145,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		var startTime = Time.time;
 		var animator = p.gameObject.GetComponent<Animator>();
 		animator.SetBool("Move", true);
+		Maestro.instance.PlayMovement();
 		float deltaTime;
 		do {
 			deltaTime = Time.time - startTime;

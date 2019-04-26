@@ -566,6 +566,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunShot: {fileID: 8300000, guid: b3beb8ba61233450ea9d752af2740618, type: 3}
+  bulletHit: {fileID: 8300000, guid: 7f5b1cf9eb5484387bad581183ae7875, type: 3}
+  movement: {fileID: 8300000, guid: f0b75b1e0121349a99a0335eb55731a3, type: 3}
   deaths:
   - {fileID: 8300000, guid: 40f5836458bc743abab7823ed935b8b7, type: 3}
   - {fileID: 8300000, guid: 8f2f7a0a7c13f4a7cb8f96ab2f19447f, type: 3}
