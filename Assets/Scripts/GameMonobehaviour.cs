@@ -8,11 +8,15 @@ public class GameMonobehaviour : MonoBehaviour {
 	public GameObject gridSquare;
 	public float gridSquareWidth = 0.6f;
 
+	public GameObject desert;
+
 	SpriteRenderer[,] gridSquares;
 	Player[] players = new Player[2];
 	Grid grid;
 	Resolver resolver;
 	int coroutineCount;
+
+	bool isGameOver;
 
 	void Awake() {
 		gameObject.AddComponent<Coroutines>();
@@ -59,6 +63,9 @@ public class GameMonobehaviour : MonoBehaviour {
 
 		cardSelectionIndex = 0;
 		coroutineCount = 0;
+		isGameOver = false;
+
+		desert.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f);
 	}
 
 	Vector2 GridToWorld(int x, int y) {
@@ -74,6 +81,18 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	int cardSelectionIndex;
 	void Update() {
+		if (isGameOver) { return; }
+
+		foreach (var player in players) {
+			if (player.hp <= 0) {
+				Maestro.instance.PlayDeath();
+				isGameOver = true;
+				desert.GetComponent<SpriteRenderer>().color = new Color(0.8584906f, 0.133633f, 0.133633f);
+				StartCoroutine(Restart());
+				return;
+			}
+		}
+
 		if (Input.GetKeyUp(KeyCode.R)) {
 			StartCoroutine(Restart(0));
 			return;
@@ -146,7 +165,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		yield return null;
 	}
 
-	IEnumerator Restart(int seconds = 1) {
+	IEnumerator Restart(int seconds = 5) {
 		yield return new WaitForSeconds(seconds);
 		for (int i = 0; i < players.Length; i++) {
 			Destroy(players[i].gameObject);
@@ -199,12 +218,6 @@ public class GameMonobehaviour : MonoBehaviour {
 			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 			foreach (var player in players) {
 				player.actionsTaken = 0;
-			}
-		}
-
-		foreach (var player in players) {
-			if (player.hp <= 0) {
-				yield return StartCoroutine(Restart());
 			}
 		}
 	}

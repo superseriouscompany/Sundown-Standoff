@@ -821,9 +821,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridSize: 5
-  hp: 3
-  doubleShot: 1
-  minimum2: 1
+  hp: 1
+  doubleShot: 0
+  minimum2: 0
   incrementalResolution: 0
   diagonalShots: 1
   diagonalMove: 1
@@ -1090,6 +1090,7 @@ MonoBehaviour:
   gridSquare: {fileID: 7386702340655022546, guid: c7025c78b7df340c396f59f31d26a7a3,
     type: 3}
   gridSquareWidth: 1
+  desert: {fileID: 1084708503}
 --- !u!4 &1999328117
 Transform:
   m_ObjectHideFlags: 0
