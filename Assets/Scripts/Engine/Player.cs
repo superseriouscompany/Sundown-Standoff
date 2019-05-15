@@ -13,7 +13,7 @@ public class Player {
 	public List<Card> cards;
 	public Card card;
 	public List<Action> actions = new List<Action>();
-
+	public int ammo;
 
 	public KeyMapping keyMapping;
 	public int actionsTaken;
@@ -24,6 +24,7 @@ public class Player {
 		this.hp = hp;
 		this.position = position;
 		targetPosition = position;
+		ammo = 2;
 
 		Deal();
 	}
@@ -51,18 +52,6 @@ public class Player {
 	public void AddAction(Action action) {
 		if (actionCount >= card.actions) {
 			throw new TooManyActionsException($"Tried to add an action but we already have {actions.Count} which is more than {card.actions}");
-		}
-
-		if (Rules.instance.doubleShot) {
-			var lastAction = actions.Count > 0 ? actions[actions.Count - 1] : null;
-			var expectsShot = lastAction != null && lastAction.actionType == ActionType.SHOOT && lastAction.dualDirection.x == 0 && lastAction.dualDirection.y == 0;
-
-			if (expectsShot && action.actionType == ActionType.SHOOT) {
-				lastAction.dualDirection = action.direction;
-				return;
-			} else if (expectsShot && action.actionType == ActionType.MOVE) {
-				throw new NeedsDoubleShotException($"Expected second shoot action but got move");
-			}
 		}
 
 		action.turn = turn++;

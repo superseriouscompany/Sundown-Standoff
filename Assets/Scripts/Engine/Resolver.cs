@@ -75,6 +75,10 @@ public class Resolver {
 		}
 	}
 
+	public void StepReload() {
+
+	}
+
 	public void StepShots() {
 		var roundShooting = actions.Where((a) => a.turn == round && a.actionType == ActionType.SHOOT).ToList();
 
@@ -83,6 +87,7 @@ public class Resolver {
 		hitSquares.Clear();
 		foreach (var action in roundShooting) {
 			var player = action.player;
+			player.ammo--;
 			var squares = grid.Raycast(action);
 			hitSquares.AddRange(squares);
 			var animator = player.gameObject.GetComponent<Animator>();

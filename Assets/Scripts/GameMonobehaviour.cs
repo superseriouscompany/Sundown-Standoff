@@ -228,6 +228,8 @@ public class GameMonobehaviour : MonoBehaviour {
 				yield return null;
 			}
 
+			resolver.StepReload();
+
 			resolver.StepShots();
 			foreach (var square in resolver.hitSquares) {
 				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);

@@ -58,5 +58,6 @@ public class Action {
 
 public enum ActionType {
 	MOVE,
+	RELOAD,
 	SHOOT
 }

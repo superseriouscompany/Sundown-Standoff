@@ -824,7 +824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 5
   hp: 3
-  doubleShot: 1
+  doubleShot: 0
   minimum2: 0
   incrementalResolution: 0
   diagonalShots: 1
@@ -1145,6 +1145,7 @@ MonoBehaviour:
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      ammo: 0
       actionsTaken: 0
     - id: 0
       position: {x: 0, y: 0}
@@ -1152,6 +1153,7 @@ MonoBehaviour:
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      ammo: 0
       actionsTaken: 0
     message: 
     phase: 0

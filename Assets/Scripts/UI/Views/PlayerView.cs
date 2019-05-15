@@ -27,6 +27,6 @@ public class PlayerView : UIView {
 				break;
 		}
 
-		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\n{sb}";
+		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\nAmmo: {state.players[id].ammo}\n{sb}";
 	}
 }
