@@ -12,6 +12,7 @@ public class Player {
 	public int hp;
 	public List<Card> cards;
 	public Card card;
+	public Hand hand;
 	public List<Action> actions = new List<Action>();
 	public int ammo;
 
@@ -26,6 +27,8 @@ public class Player {
 		targetPosition = position;
 		ammo = Rules.instance.startingAmmo;
 
+		hand = new Hand(Deck.Deal());
+		Debug.Log(hand);
 		Deal();
 	}
 
@@ -46,6 +49,11 @@ public class Player {
 	public void Discard() {
 		cards.Remove(card);
 		turn = 0;
+		hand.Discard(0);
+		while (hand.cards.Count < Rules.instance.handSize) {
+			hand.Draw();
+		}
+		Debug.Log(hand);
 		if (cards.Count == 0) { Deal(); }
 	}
 
@@ -69,22 +77,12 @@ public class Player {
 
 	public int actionCount {
 		get {
-			int total = 0;
-			foreach(var action in actions) {
-				total++;
-
-				if (Rules.instance.doubleShot) {
-					if (action.actionType == ActionType.SHOOT && action.dualDirection.x == 0 && action.dualDirection.y == 0) {
-						total--;
-					}
-				}
-			}
-			return total;
+			return actions.Count;
 		}
 	}
 
 	void Deal() {
-		var minimum = Rules.instance.minimum2 ? 2 : 1;
+		var minimum = 1;
 		cards = new List<Card>() {
 			new Card() { actions = 3 },
 			new Card() { actions = 2 },
@@ -111,8 +109,4 @@ class CardMissingException : System.Exception {
 
 class TooManyActionsException : System.Exception {
 	public TooManyActionsException(string message) : base(message) { }
-}
-
-class NeedsDoubleShotException : System.Exception {
-	public NeedsDoubleShotException(string message) : base(message) { }
 }

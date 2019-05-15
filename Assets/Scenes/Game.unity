@@ -824,15 +824,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 5
   hp: 3
-  doubleShot: 0
-  minimum2: 0
-  incrementalResolution: 0
-  diagonalShots: 1
-  diagonalMove: 1
-  moveBeatsShot: 0
-  obstacles: 0
-  mines: 0
+  startingAmmo: 2
+  maxAmmo: 3
+  handSize: 4
+  deckSize: 8
+  cards:
+  - id: 0
+    actions: 1
+    effect: 0
+    name: Cool
+    description: Nice
+  - id: 0
+    actions: 2
+    effect: 0
+    name: Good
+    description: Great
+  - id: 0
+    actions: 3
+    effect: 0
+    name: Awesome
+    description: Wonderful
+  - id: 0
+    actions: 4
+    effect: 0
+    name: Halp
+    description: Moi
+  - id: 0
+    actions: 2
+    effect: 0
+    name: Dopiness
+    description: Fantastico
+  - id: 0
+    actions: 2
+    effect: 0
+    name: Awesome
+    description: Amazing
+  - id: 0
+    actions: 0
+    effect: 0
+    name: Woohoo
+    description: Huzzah
   debugPositions: 0
+  incrementalResolution: 0
   turnDelay: 0.6
   moveSpeed: 2
 --- !u!4 &1146221125
@@ -1145,6 +1178,13 @@ MonoBehaviour:
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      cards: []
+      card:
+        id: 0
+        actions: 0
+        effect: 0
+        name: 
+        description: 
       ammo: 0
       actionsTaken: 0
     - id: 0
@@ -1153,6 +1193,13 @@ MonoBehaviour:
       bounceBack: 0
       gameObject: {fileID: 0}
       hp: 0
+      cards: []
+      card:
+        id: 0
+        actions: 0
+        effect: 0
+        name: 
+        description: 
       ammo: 0
       actionsTaken: 0
     message: 

@@ -12,7 +12,6 @@ public class Grid {
 		switch(action.actionType) {
 			case ActionType.MOVE:
 				if (!hasMovement) { return false; }
-				if (isDiagonal && !Rules.instance.diagonalMove) { return false; }
 				var targetPosition = ExpectedPosition(action) + action.direction;
 				return IsValidSquare(targetPosition);
 			case ActionType.SHOOT:

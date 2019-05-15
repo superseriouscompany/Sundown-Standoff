@@ -175,9 +175,8 @@ public class GameMonobehaviour : MonoBehaviour {
 			Log("Action invalid");
 			return;
 		}
-		try {
-			action.player.AddAction(action);
-		} catch (NeedsDoubleShotException) { return; }
+
+		action.player.AddAction(action);
 	}
 
 	IEnumerator SmoothMove(Player p) {

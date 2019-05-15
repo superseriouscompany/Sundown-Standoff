@@ -50,17 +50,17 @@ public class Hand {
 		var sb = new StringBuilder();
 		sb.Append("Hand:\n");
 		foreach (var card in cards) {
-			sb.Append(card.id + " ");
+			sb.Append($"{card.name} ({card.actions})  ");
 		}
 		sb.AppendLine();
 		sb.Append("Library:\n");
 		foreach (var card in library) {
-			sb.Append(card.id + " ");
+			sb.Append($"{card.name} ({card.actions})  ");
 		}
 		sb.AppendLine();
 		sb.Append("Graveyard:\n");
 		foreach (var card in graveyard) {
-			sb.Append(card.id + " ");
+			sb.Append($"{card.name} ({card.actions})  ");
 		}
 		return sb.ToString();
 	}
