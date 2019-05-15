@@ -10,6 +10,7 @@ public class Maestro : MonoBehaviour {
 	public AudioClip gunShot;
 	public AudioClip bulletHit;
 	public AudioClip movement;
+	public AudioClip reload;
 	public AudioClip[] deaths;
 	public AudioClip[] hits;
 
@@ -35,7 +36,12 @@ public class Maestro : MonoBehaviour {
 	}
 
 	public void PlayMovement() {
-		player.PlayOneShot(movement);	}
+		player.PlayOneShot(movement);
+	}
+
+	public void PlayReload() {
+		player.PlayOneShot(reload);
+	}
 
 }
 

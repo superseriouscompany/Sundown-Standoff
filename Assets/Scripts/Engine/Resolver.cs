@@ -123,6 +123,8 @@ public class Resolver {
 	void Reload(Player player) {
 		player.ammo++;
 		player.ammo = Mathf.Clamp(player.ammo, 0, Rules.instance.maxAmmo);
+		Maestro.instance.PlayReload();
+		var animator = player.gameObject.GetComponent<Animator>();
 		player.actionsTaken++;
 	}
 

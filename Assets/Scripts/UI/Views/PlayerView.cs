@@ -25,6 +25,11 @@ public class PlayerView : UIView {
 					sb.AppendLine();
 				}
 
+				sb.AppendLine();
+				sb.Append("-------------------");
+				sb.AppendLine();
+				sb.Append($"<size=80%>{player.hand}</size>");
+
 				if (player.card != null) {
 					sb.Append("Card Selected.");
 				}

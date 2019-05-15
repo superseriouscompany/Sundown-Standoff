@@ -6,7 +6,7 @@ using System.Text;
 public class Hand {
 	public List<Card> cards;
 	List<Card> graveyard;
-	Queue<Card> library;
+	public Queue<Card> library;
 
 	public Hand(List<Card> deck) {
 		var activeCards = deck.GetRange(0, Rules.instance.handSize);
@@ -48,19 +48,14 @@ public class Hand {
 
 	public override string ToString() {
 		var sb = new StringBuilder();
-		sb.Append("Hand:\n");
-		foreach (var card in cards) {
-			sb.Append($"{card.name} ({card.actions})  ");
-		}
-		sb.AppendLine();
 		sb.Append("Library:\n");
 		foreach (var card in library) {
-			sb.Append($"{card.name} ({card.actions})  ");
+			sb.Append($"{card.name} ({card.actions})\n");
 		}
 		sb.AppendLine();
 		sb.Append("Graveyard:\n");
 		foreach (var card in graveyard) {
-			sb.Append($"{card.name} ({card.actions})  ");
+			sb.Append($"{card.name} ({card.actions})\n");
 		}
 		return sb.ToString();
 	}
