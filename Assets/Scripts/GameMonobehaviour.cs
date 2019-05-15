@@ -171,6 +171,10 @@ public class GameMonobehaviour : MonoBehaviour {
 			Log("Action rejected");
 			return;
 		}
+		if (!action.Validate()) {
+			Log("Action invalid");
+			return;
+		}
 		try {
 			action.player.AddAction(action);
 		} catch (NeedsDoubleShotException) { return; }

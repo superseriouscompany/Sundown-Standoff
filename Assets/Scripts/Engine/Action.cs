@@ -13,6 +13,18 @@ public class Action {
 		return $"Action {actionType} {direction} for player {player.id} on turn {turn}";
 	}
 
+	public bool Validate() {
+		switch (actionType) {
+			case ActionType.RELOAD:
+				if (player.ammo >= Rules.instance.maxAmmo) {
+					return false;
+				}
+				return true;
+			default: 
+				return true;
+		}
+	}
+
 	public static List<Action> FromInput(Player[] players, KeyMapping[] mappings) {
 		var actions = new List<Action>();
 
@@ -33,6 +45,8 @@ public class Action {
 			action = new Action() { actionType = ActionType.SHOOT };
 		} else if (Input.GetKeyDown(keys.move)) {
 			action = new Action() { actionType = ActionType.MOVE };
+		} else if (Input.GetKeyDown(keys.reload)) {
+			action = new Action() { actionType = ActionType.RELOAD };
 		} else {
 			return null;
 		}

@@ -33,15 +33,15 @@ public class Sandbox : MonoBehaviour {
 		}
 
 		if (Input.GetKeyDown(KeyCode.LeftAlt)) {
-			Debug.Log("FUCK");
+			Debug.Log("ALT");
 		}
 
 		if (Input.GetKeyDown(KeyCode.LeftControl)) {
-			Debug.Log("CTRL FUCK");
+			Debug.Log("CTRL");
 		}
 
 		if (Input.GetKeyDown(KeyCode.LeftCommand)) {
-			Debug.Log("CMD FUCK");
+			Debug.Log("CMD");
 		}
 
 		if (Input.GetKeyDown(KeyCode.Backslash)) {

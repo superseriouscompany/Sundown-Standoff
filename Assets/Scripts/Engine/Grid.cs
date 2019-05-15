@@ -6,16 +6,17 @@ public class Grid {
 	public int gridSize;
 
 	public bool Validate(Action action) {
-		if (action.direction.x == 0 && action.direction.y == 0) { return false; }
-
+		var hasMovement = action.direction.x != 0 || action.direction.y != 0;
 		var isDiagonal = action.direction.x != 0 && action.direction.y != 0;
 
 		switch(action.actionType) {
 			case ActionType.MOVE:
+				if (!hasMovement) { return false; }
 				if (isDiagonal && !Rules.instance.diagonalMove) { return false; }
 				var targetPosition = ExpectedPosition(action) + action.direction;
 				return IsValidSquare(targetPosition);
 			case ActionType.SHOOT:
+				if (!hasMovement) { return false; }
 				if (isDiagonal && !Rules.instance.diagonalShots) { return false; }
 				return true;
 			default:

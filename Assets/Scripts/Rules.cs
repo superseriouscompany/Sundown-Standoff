@@ -17,6 +17,9 @@ public class Rules : MonoBehaviour {
 
 	public bool debugPositions;
 
+	public int startingAmmo = 2;
+	public int maxAmmo = 3;
+
 	public float turnDelay = 1f;
 	public float moveSpeed = 1f;
 

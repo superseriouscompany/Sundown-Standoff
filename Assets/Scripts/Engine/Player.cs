@@ -24,7 +24,7 @@ public class Player {
 		this.hp = hp;
 		this.position = position;
 		targetPosition = position;
-		ammo = 2;
+		ammo = Rules.instance.startingAmmo;
 
 		Deal();
 	}

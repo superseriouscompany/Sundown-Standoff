@@ -76,7 +76,13 @@ public class Resolver {
 	}
 
 	public void StepReload() {
+		var roundReloads = actions.Where((a) => a.turn == round && a.actionType == ActionType.RELOAD).ToList();
 
+		Debug.Log($"Running {roundReloads.Count} reloads");
+
+		foreach (var action in roundReloads) {
+			Reload(action.player);
+		}
 	}
 
 	public void StepShots() {
@@ -87,7 +93,12 @@ public class Resolver {
 		hitSquares.Clear();
 		foreach (var action in roundShooting) {
 			var player = action.player;
+			if (player.ammo <= 0) {
+				Reload(player);
+				continue;
+			}
 			player.ammo--;
+			player.ammo = Mathf.Clamp(player.ammo, 0, Rules.instance.maxAmmo);
 			var squares = grid.Raycast(action);
 			hitSquares.AddRange(squares);
 			var animator = player.gameObject.GetComponent<Animator>();
@@ -107,6 +118,12 @@ public class Resolver {
 		}
 
 		round++;
+	}
+
+	void Reload(Player player) {
+		player.ammo++;
+		player.ammo = Mathf.Clamp(player.ammo, 0, Rules.instance.maxAmmo);
+		player.actionsTaken++;
 	}
 
 	IEnumerator Hit(Player player) {
