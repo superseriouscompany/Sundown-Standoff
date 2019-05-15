@@ -15,10 +15,3 @@ public class Card {
 		return $"{name} ({actions})";
 	}
 }
-
-public enum Effect {
-	None,
-	Heal,
-	GoldenGun,
-	TeleportCenter
-}

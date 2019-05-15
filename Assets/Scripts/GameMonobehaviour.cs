@@ -188,6 +188,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	void ProcessEffect(Player player) {
 		var card = player.card;
+		Player opponent = GetOtherPlayer(player);
 		switch (card.effect) {
 			case Effect.Heal:
 				player.hp++;
@@ -201,7 +202,22 @@ public class GameMonobehaviour : MonoBehaviour {
 				player.targetPosition = center;
 				player.gameObject.transform.position = GridToWorld(center);
 				break;
+			case Effect.Steal:
+				if (opponent.card.actions == 0) { return; }
+				if (opponent.card.effect == Effect.Curse) { return; }
+				player.actionModifier++;
+				opponent.actionModifier--;
+				break;
+			case Effect.Curse:
+				if (opponent.card.effect == Effect.Steal) { return; }
+				player.actionModifier += opponent.card.actions - player.card.actions;
+				opponent.actionModifier += player.card.actions - opponent.card.actions;
+				break;
 		}
+	}
+
+	Player GetOtherPlayer(Player player) {
+		return player.id == 0 ? players[1] : players[0];
 	}
 
 	IEnumerator SmoothMove(Player p) {
@@ -270,7 +286,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 		bool isComplete = true;
 		foreach (var player in players) {
-			if (player.actionsTaken < player.card.actions) {
+			if (player.actionsTaken < player.actionsAvailable) {
 				if (isComplete == true) {
 					UIDispatcher.Send(new DSUI.SetTurnAction() { turn = player.id });
 				}
@@ -279,6 +295,9 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		if (isComplete) {
+			foreach (var player in players) {
+				player.Discard();
+			}
 			GoToCardsPhase();
 		}
 	}
@@ -338,9 +357,6 @@ public class GameMonobehaviour : MonoBehaviour {
 	void GoToActionPhase() {
 		phase = Phase.Actions;
 		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
-		foreach (var player in players) {
-			player.Discard();
-		}
 	}
 
 	void Log(string msg) {

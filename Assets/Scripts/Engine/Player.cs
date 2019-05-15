@@ -10,7 +10,6 @@ public class Player {
 	public bool bounceBack;
 	public GameObject gameObject;
 	public int hp;
-	public List<Card> cards;
 	public Card card;
 	public Hand hand;
 	public List<Action> actions = new List<Action>();
@@ -18,6 +17,8 @@ public class Player {
 
 	public KeyMapping keyMapping;
 	public int actionsTaken;
+	public int actionModifier;
+
 	int turn;
 	int cardIndex = -1;
 
@@ -30,7 +31,6 @@ public class Player {
 
 		hand = new Hand(Deck.Deal());
 		Debug.Log(hand);
-		Deal();
 	}
 
 	public void PickCard(int index) {
@@ -43,22 +43,21 @@ public class Player {
 		Debug.Log($"Player {id} picked card {card}");
 		actions.Clear();
 		actionsTaken = 0;
+		actionModifier = 0;
+		turn = 0;
 	}
 
 	public void Discard() {
-		cards.Remove(card);
-		turn = 0;
 		hand.Discard(cardIndex);
 		while (hand.cards.Count < Rules.instance.handSize) {
 			hand.Draw();
 		}
 		Debug.Log(hand);
 		cardIndex = -1;
-		if (cards.Count == 0) { Deal(); }
 	}
 
 	public void AddAction(Action action) {
-		if (actionCount >= card.actions) {
+		if (actionsEntered >= actionsAvailable) {
 			throw new TooManyActionsException($"Tried to add an action but we already have {actions.Count} which is more than {card.actions}");
 		}
 
@@ -69,27 +68,22 @@ public class Player {
 	public bool isReady {
 		get {
 			if (Rules.instance.incrementalResolution) {
-				return actionCount > actionsTaken || actionCount == card.actions;
+				return actionsEntered > actionsTaken || actionsEntered == actionsAvailable;
 			}
-			return actionCount == card.actions;
+			return actionsEntered == actionsAvailable;
 		}
 	}
 
-	public int actionCount {
+	public int actionsEntered {
 		get {
 			return actions.Count;
 		}
 	}
 
-	void Deal() {
-		var minimum = 1;
-		cards = new List<Card>() {
-			new Card() { actions = 3 },
-			new Card() { actions = 2 },
-			new Card() { actions = minimum },
-			new Card() { actions = minimum },
-			new Card() { actions = minimum }
-		};
+	public int actionsAvailable {
+		get {
+			return card == null ? 0 : card.actions + actionModifier;
+		}
 	}
 
 	public void Move(int horizontal, int vertical) {
