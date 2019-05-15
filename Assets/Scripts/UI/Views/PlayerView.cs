@@ -16,9 +16,10 @@ public class PlayerView : UIView {
 
 		switch(state.phase) {
 			case Phase.CARDS:
-				sb.Append("Cards: ");
-				for (int i = 0; i < player.cards.Count; i++) {
-					sb.Append($"{player.cards[i].actions} ");
+				int index = 0;
+				foreach (var card in player.hand.cards) {
+					sb.AppendLine();
+					sb.Append($"{++index}. {card.name} ({card.actions}) - {card.description}");
 				}
 				break;
 			case Phase.ACTIONS:
@@ -27,6 +28,6 @@ public class PlayerView : UIView {
 				break;
 		}
 
-		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\nAmmo: {state.players[id].ammo}\n{sb}";
+		text.text = $"HP: {state.players[id].hp}\nAmmo: {state.players[id].ammo}\n{sb}";
 	}
 }
