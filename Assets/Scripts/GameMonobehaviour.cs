@@ -321,6 +321,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 			try {
 				players[i].PickCard(index);
+				UIDispatcher.Send(new DSUI.RenderAction());
 			} catch (CardMissingException) { }
 		}
 

@@ -18,8 +18,15 @@ public class PlayerView : UIView {
 			case Phase.Cards:
 				int index = 0;
 				foreach (var card in player.hand.cards) {
+					sb.Append($"{++index}. {card.name} ({card.actions})");
 					sb.AppendLine();
-					sb.Append($"{++index}. {card.name} ({card.actions}) - {card.description}");
+					sb.Append($"<size=80%>{card.description}</size>");
+					sb.AppendLine();
+					sb.AppendLine();
+				}
+
+				if (player.card != null) {
+					sb.Append("Card Selected.");
 				}
 				break;
 			case Phase.Actions:
@@ -28,6 +35,6 @@ public class PlayerView : UIView {
 				break;
 		}
 
-		text.text = $"HP: {state.players[id].hp}\nAmmo: {state.players[id].ammo}\n{sb}";
+		text.text = $"HP: {state.players[id].hp}\nAmmo: {state.players[id].ammo}\n\n{sb}";
 	}
 }
