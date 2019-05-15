@@ -6,9 +6,19 @@ public class Sandbox : MonoBehaviour {
 	public float speed;
 	public Animator animator;
 
+	Hand hand;
+
 	// Start is called before the first frame update
 	void Start() {
 		StartCoroutine(DoMovement());
+		var cards = Deck.Deal();
+
+		foreach (var card in cards) {
+			Debug.Log($"CARD {card.id}");
+		}
+
+		hand = new Hand(cards);
+		Debug.Log(hand);
 	}
 
 	void Update() {
@@ -26,10 +36,6 @@ public class Sandbox : MonoBehaviour {
 
 		if (Input.GetKeyDown(KeyCode.LeftShift)) {
 			Debug.Log("LEFT SHIFT DOWN");
-		}
-
-		if (Input.GetKeyDown(KeyCode.Alpha1)) {
-			Debug.Log("This is bullshit.");
 		}
 
 		if (Input.GetKeyDown(KeyCode.LeftAlt)) {
@@ -56,10 +62,26 @@ public class Sandbox : MonoBehaviour {
 			Debug.Log("7");
 		}
 
-		var cards = Deck.Deal();
+		if (Input.GetKeyDown(KeyCode.D)) {
+			hand.Draw();
+			Debug.Log(hand);
+		}
 
-		foreach(var card in cards) {
-			Debug.Log($"CARD {card.id}");
+		if (Input.GetKeyDown(KeyCode.Alpha1)) {
+			hand.Discard(0);
+			Debug.Log(hand);
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha2)) {
+			hand.Discard(1);
+			Debug.Log(hand);
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha3)) {
+			hand.Discard(2);
+			Debug.Log(hand);
+		}
+		if (Input.GetKeyDown(KeyCode.Alpha4)) {
+			hand.Discard(3);
+			Debug.Log(hand);
 		}
 	}
 
