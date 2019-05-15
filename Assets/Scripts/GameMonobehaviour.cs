@@ -15,8 +15,8 @@ public class GameMonobehaviour : MonoBehaviour {
 	Grid grid;
 	Resolver resolver;
 	int coroutineCount;
-
 	bool isGameOver;
+	Phase phase = Phase.CARDS;
 
 	KeyMapping[] keyMappings = new KeyMapping[] {
 		new KeyMapping() {
@@ -25,6 +25,12 @@ public class GameMonobehaviour : MonoBehaviour {
 				KeyCode.D,
 				KeyCode.S,
 				KeyCode.A
+			},
+			cards = new KeyCode[] {
+				KeyCode.Alpha1,
+				KeyCode.Alpha2,
+				KeyCode.Alpha3,
+				KeyCode.Alpha4
 			},
 			move = KeyCode.LeftShift,
 			shoot = KeyCode.CapsLock,
@@ -36,6 +42,12 @@ public class GameMonobehaviour : MonoBehaviour {
 				KeyCode.RightArrow,
 				KeyCode.DownArrow,
 				KeyCode.LeftArrow
+			},
+			cards = new KeyCode[] {
+				KeyCode.Alpha7,
+				KeyCode.Alpha8,
+				KeyCode.Alpha9,
+				KeyCode.Alpha0
 			},
 			move = KeyCode.RightShift,
 			shoot = KeyCode.Return,
@@ -55,7 +67,6 @@ public class GameMonobehaviour : MonoBehaviour {
 			players[0] = new Player(0, Rules.instance.hp, new Vector2Int(0, Rules.instance.gridSize / 2));
 			players[1] = new Player(1, Rules.instance.hp, new Vector2Int(Rules.instance.gridSize - 1, Rules.instance.gridSize / 2));
 		}
-
 
 		for (int i = 0; i < players.Length; i++) {
 			var playerObject = Instantiate(playerPrefab);
@@ -81,12 +92,11 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		grid = new Grid() { gridSize = Rules.instance.gridSize };
-		UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
+		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 
 		resolver = new Resolver(grid, players);
 
-		cardSelectionIndex = 0;
 		coroutineCount = 0;
 		isGameOver = false;
 
@@ -103,8 +113,6 @@ public class GameMonobehaviour : MonoBehaviour {
 			vector.y * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1
 		);
 	}
-
-	int cardSelectionIndex;
 
 	void Update() {
 		if (isGameOver) { return; }
@@ -124,8 +132,8 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		if (cardSelectionIndex < players.Length) {
-			PickCard();
+		if (phase == Phase.CARDS) {
+			PickCards();
 			return;
 		}
 
@@ -241,42 +249,60 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		if (isComplete) {
-			resolver.Reset();
-			cardSelectionIndex = 0;
-			UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.CARDS });
-			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
-			foreach (var player in players) {
-				player.actionsTaken = 0;
-			}
+			GoToCardsPhase();
 		}
 	}
 
-	void PickCard() {
-		int numActions = 0;
-		if (Input.GetKeyUp(KeyCode.Alpha1)) {
-			numActions = 1;
-		} else if (Input.GetKeyUp(KeyCode.Alpha2)) {
-			numActions = 2;
-		} else if (Input.GetKeyUp(KeyCode.Alpha3)) {
-			numActions = 3;
+	void PickCards() {
+		for (int i = 0; i < players.Length; i++) {
+			var keys = keyMappings[i];
+			int numActions = 0;
+			if (Input.GetKeyUp(keys.cards[0])) {
+				numActions = 1;
+			} else if (Input.GetKeyUp(keys.cards[1])) {
+				numActions = 2;
+			} else if (Input.GetKeyUp(keys.cards[2])) {
+				numActions = 3;
+			}
+
+			if (numActions == 0) { continue; }
+
+			try {
+				players[i].PickCard(numActions);
+			} catch (CardMissingException) { }
 		}
 
-		if (numActions == 0) { return; }
-		try {
-			players[cardSelectionIndex].PickCard(numActions);
-			cardSelectionIndex++;
-			UIDispatcher.Send(new DSUI.RenderAction());
-
-			UIDispatcher.Send(new DSUI.SetTurnAction() { turn = cardSelectionIndex });
-			if (cardSelectionIndex >= players.Length) {
-				UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
-				UIDispatcher.Send(new DSUI.SetPhaseAction() { phase = Phase.ACTIONS });
-				coroutineCount = 0;
-				for (int i = 0; i < players.Length; i++) {
-					players[i].Discard();
-				}
+		bool isReady = true;
+		foreach (var player in players) {
+			if (player.card == null) {
+				isReady = false;
+				break;
 			}
-		} catch (CardMissingException) { }
+		}
+
+		if (isReady) {
+			GoToActionPhase();
+		}
+		coroutineCount = 0;
+	}
+
+	void GoToCardsPhase() {
+		resolver.Reset();
+		phase = Phase.CARDS;
+		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
+		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
+		foreach (var player in players) {
+			player.actionsTaken = 0;
+			player.card = null;
+		}
+	}
+
+	void GoToActionPhase() {
+		phase = Phase.ACTIONS;
+		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
+		foreach (var player in players) {
+			player.Discard();
+		}
 	}
 
 	void Log(string msg) {

@@ -13,11 +13,6 @@ public class PlayerView : UIView {
 		if (player == null || player.cards == null) { return; }
 
 		var sb = new StringBuilder();
-		var myTurn = state.turn == id;
-
-		if (myTurn) {
-			sb.Append("<color=#D1AF36>");
-		}
 
 		switch(state.phase) {
 			case Phase.CARDS:
@@ -30,9 +25,6 @@ public class PlayerView : UIView {
 				sb.Append("Actions: ");
 				sb.Append(player.actionCount + " / " + player.card.actions);
 				break;
-		}
-		if (myTurn) {
-			sb.Append("</color>");
 		}
 
 		text.text = $"Player {id + 1}\nHP: {state.players[id].hp}\n{sb}";

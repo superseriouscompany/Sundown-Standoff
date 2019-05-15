@@ -20,6 +20,10 @@ namespace DSUI {
 	public struct SetPhaseAction : IUIAction {
 		public Phase phase;
 
+		public SetPhaseAction(Phase phase) {
+			this.phase = phase;
+		}
+
 		public void Execute(UIState state) {
 			state.phase = phase;
 		}

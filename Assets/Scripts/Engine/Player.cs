@@ -14,6 +14,8 @@ public class Player {
 	public Card card;
 	public List<Action> actions = new List<Action>();
 
+
+	public KeyMapping keyMapping;
 	public int actionsTaken;
 	int turn;
 
@@ -32,6 +34,7 @@ public class Player {
 				card = cards[i];
 				actions.Clear();
 				actionsTaken = 0;
+				Debug.Log($"Player {id} picked card {card.actions}");
 				return;
 			}
 		}
