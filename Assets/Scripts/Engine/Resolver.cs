@@ -81,7 +81,7 @@ public class Resolver {
 		Debug.Log($"Running {roundReloads.Count} reloads");
 
 		foreach (var action in roundReloads) {
-			Reload(action.player);
+			Coroutines.Start(Reload(action.player));
 		}
 	}
 
@@ -120,11 +120,13 @@ public class Resolver {
 		round++;
 	}
 
-	void Reload(Player player) {
+	IEnumerator Reload(Player player) {
 		player.ammo++;
 		player.ammo = Mathf.Clamp(player.ammo, 0, Rules.instance.maxAmmo);
-		Maestro.instance.PlayReload();
 		var animator = player.gameObject.GetComponent<Animator>();
+		animator.SetTrigger("Reload");
+		yield return new WaitForSecondsRealtime(0.1f);
+		Maestro.instance.PlayReload();
 		player.actionsTaken++;
 	}
 
