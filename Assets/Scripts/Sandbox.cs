@@ -15,6 +15,46 @@ public class Sandbox : MonoBehaviour {
 		if (Input.GetKeyUp(KeyCode.Space)) {
 			animator.SetTrigger("DoubleShot");
 		}
+
+		if (Input.GetButtonDown("Shoot1")) {
+			Debug.Log("SHOOT MFER");
+		}
+
+		if (Input.GetKeyDown(KeyCode.Tab)) {
+			Debug.Log("TAB MFER");
+		}
+
+		if (Input.GetKeyDown(KeyCode.LeftShift)) {
+			Debug.Log("LEFT SHIFT DOWN");
+		}
+
+		if (Input.GetKeyDown(KeyCode.Alpha1)) {
+			Debug.Log("This is bullshit.");
+		}
+
+		if (Input.GetKeyDown(KeyCode.LeftAlt)) {
+			Debug.Log("FUCK");
+		}
+
+		if (Input.GetKeyDown(KeyCode.LeftControl)) {
+			Debug.Log("CTRL FUCK");
+		}
+
+		if (Input.GetKeyDown(KeyCode.LeftCommand)) {
+			Debug.Log("CMD FUCK");
+		}
+
+		if (Input.GetKeyDown(KeyCode.Backslash)) {
+			Debug.Log("BACKSLASH");
+		}
+
+		if (Input.GetKeyDown(KeyCode.BackQuote)) {
+			Debug.Log("BACKQUOTE");
+		}
+
+		if (Input.GetKeyDown(KeyCode.Alpha7)) {
+			Debug.Log("7");
+		}
 	}
 
 	IEnumerator DoMovement() {
@@ -26,7 +66,6 @@ public class Sandbox : MonoBehaviour {
 			float deltaTime;
 			do {
 				deltaTime = Time.time - startTime;
-				Debug.Log($"Moving by {Time.time - startTime}");
 				transform.position = Vector3.Lerp(origin, destination, (Time.time - startTime) * speed);
 				yield return null;
 			} while (deltaTime < distance / speed);

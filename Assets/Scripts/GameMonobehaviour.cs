@@ -33,8 +33,8 @@ public class GameMonobehaviour : MonoBehaviour {
 				KeyCode.Alpha4
 			},
 			move = KeyCode.LeftShift,
-			shoot = KeyCode.Tab,
-			reload = KeyCode.Tilde
+			shoot = KeyCode.LeftControl,
+			reload = KeyCode.LeftAlt
 		},
 		new KeyMapping() {
 			directions = new KeyCode[] {
@@ -49,9 +49,9 @@ public class GameMonobehaviour : MonoBehaviour {
 				KeyCode.Alpha9,
 				KeyCode.Alpha0
 			},
-			move = KeyCode.RightShift,
-			shoot = KeyCode.Return,
-			reload = KeyCode.Backslash
+			move = KeyCode.Alpha7,
+			shoot = KeyCode.Alpha8,
+			reload = KeyCode.Alpha9
 		}
 	};
 
