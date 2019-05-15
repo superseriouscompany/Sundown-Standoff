@@ -18,6 +18,31 @@ public class GameMonobehaviour : MonoBehaviour {
 
 	bool isGameOver;
 
+	KeyMapping[] keyMappings = new KeyMapping[] {
+		new KeyMapping() {
+			directions = new KeyCode[] {
+				KeyCode.W,
+				KeyCode.D,
+				KeyCode.S,
+				KeyCode.A
+			},
+			move = KeyCode.LeftShift,
+			shoot = KeyCode.CapsLock,
+			reload = KeyCode.Tab
+		},
+		new KeyMapping() {
+			directions = new KeyCode[] {
+				KeyCode.UpArrow,
+				KeyCode.RightArrow,
+				KeyCode.DownArrow,
+				KeyCode.LeftArrow
+			},
+			move = KeyCode.RightShift,
+			shoot = KeyCode.Return,
+			reload = KeyCode.Backslash
+		}
+	};
+
 	void Awake() {
 		gameObject.AddComponent<Coroutines>();
 	}
@@ -80,6 +105,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	}
 
 	int cardSelectionIndex;
+
 	void Update() {
 		if (isGameOver) { return; }
 
@@ -103,20 +129,15 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		var action = ActionFromInput();
-		if (action == null) { return; }
+		var actions = Action.FromInput(players, keyMappings);
+		if (actions.Count == 0) { return; }
 
-		action.player = players[UIState.singleton.turn];
-		if (!grid.Validate(action)) {
-			Log("Action rejected");
-			return;
+		foreach (var action in actions) {
+			ProcessAction(action);
 		}
-		try {
-			action.player.AddAction(action);
-		} catch(NeedsDoubleShotException) { return; }
 
 		bool allReady = true;
-		List<Action> actions = new List<Action>();
+		actions.Clear();
 		for (int i = 0; i < players.Length; i++) {
 			if (!players[i].isReady) { 
 				if (allReady) {
@@ -135,6 +156,16 @@ public class GameMonobehaviour : MonoBehaviour {
 		resolver.AddActions(actions);
 		Debug.Log($"Running round");
 		StartCoroutine(ResolveActions());
+	}
+
+	void ProcessAction(Action action) {
+		if (!grid.Validate(action)) {
+			Log("Action rejected");
+			return;
+		}
+		try {
+			action.player.AddAction(action);
+		} catch (NeedsDoubleShotException) { return; }
 	}
 
 	IEnumerator SmoothMove(Player p) {
@@ -185,12 +216,9 @@ public class GameMonobehaviour : MonoBehaviour {
 				}
 			}
 
-			Debug.Log($"COROUTINE COUNT IS INITIALLY {coroutineCount}");
 			while (coroutineCount > 0) {
 				yield return null;
 			}
-
-			Debug.Log("RESOLVING SHOTS");
 
 			resolver.StepShots();
 			foreach (var square in resolver.hitSquares) {
@@ -221,32 +249,6 @@ public class GameMonobehaviour : MonoBehaviour {
 				player.actionsTaken = 0;
 			}
 		}
-	}
-
-	Action ActionFromInput() {
-		Action action;
-		if (Input.GetKeyDown(KeyCode.Space)) {
-			action = new Action() { actionType = ActionType.SHOOT };
-		} else if (Input.GetKeyDown(KeyCode.Return)) {
-			action = new Action() { actionType = ActionType.MOVE };
-		} else {
-			return null;
-		}
-
-		action.direction = new Vector2Int();
-		if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
-			action.direction.x++;
-		}
-		if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
-			action.direction.x--;
-		}
-		if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) {
-			action.direction.y++;
-		}
-		if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) {
-			action.direction.y--;
-		}
-		return action;
 	}
 
 	void PickCard() {
