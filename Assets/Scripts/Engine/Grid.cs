@@ -16,24 +16,29 @@ public class Grid {
 				var targetPosition = ExpectedPosition(action) + action.direction;
 				return IsValidSquare(targetPosition);
 			case ActionType.SHOOT:
-				if (!hasMovement) { return false; }
-				if (isDiagonal && !Rules.instance.diagonalShots) { return false; }
 				return true;
 			default:
 				return true;
 		}
 	}
 
+	Vector2Int[] directions = new Vector2Int[] {
+		new Vector2Int(0,1),
+		new Vector2Int(1,1),
+		new Vector2Int(1,0),
+		new Vector2Int(1,-1),
+		new Vector2Int(0,-1),
+		new Vector2Int(-1, -1),
+		new Vector2Int(-1,0),
+		new Vector2Int(-1,1)
+	};
+
 	public List<Vector2Int> Raycast(Action action) {
 		var origin = action.player.position;
 		var squares = new List<Vector2Int>();
 
-		for (var nextSquare = origin + action.direction; IsValidSquare(nextSquare); nextSquare += action.direction) {
-			squares.Add(nextSquare);
-		}
-
-		if (Rules.instance.doubleShot) {
-			for (var nextSquare = origin + action.dualDirection; IsValidSquare(nextSquare); nextSquare += action.dualDirection) {
+		foreach (var direction in directions) {
+			for (var nextSquare = origin + direction; IsValidSquare(nextSquare); nextSquare += direction) {
 				squares.Add(nextSquare);
 			}
 		}
