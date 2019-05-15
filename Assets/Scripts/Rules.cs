@@ -16,6 +16,8 @@ public class Rules : MonoBehaviour {
 	[BoxGroup("Cards")]
 	public int deckSize = 8;
 	[BoxGroup("Cards")]
+	public int maxDupes = 8;
+	[BoxGroup("Cards")]
 	public List<Card> cards = new List<Card>();
 
 	public bool debugPositions;

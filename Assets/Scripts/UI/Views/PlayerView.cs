@@ -15,14 +15,14 @@ public class PlayerView : UIView {
 		var sb = new StringBuilder();
 
 		switch(state.phase) {
-			case Phase.CARDS:
+			case Phase.Cards:
 				int index = 0;
 				foreach (var card in player.hand.cards) {
 					sb.AppendLine();
 					sb.Append($"{++index}. {card.name} ({card.actions}) - {card.description}");
 				}
 				break;
-			case Phase.ACTIONS:
+			case Phase.Actions:
 				sb.Append("Actions: ");
 				sb.Append(player.actionCount + " / " + player.card.actions);
 				break;

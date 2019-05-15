@@ -16,7 +16,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	Resolver resolver;
 	int coroutineCount;
 	bool isGameOver;
-	Phase phase = Phase.CARDS;
+	Phase phase = Phase.Cards;
 
 	KeyMapping[] keyMappings = new KeyMapping[] {
 		new KeyMapping() {
@@ -132,9 +132,16 @@ public class GameMonobehaviour : MonoBehaviour {
 			return;
 		}
 
-		if (phase == Phase.CARDS) {
+		if (phase == Phase.Cards) {
 			PickCards();
 			return;
+		}
+
+		if (phase == Phase.Effects) {
+			foreach (var player in players) {
+				ProcessEffect(player);
+			}
+			GoToActionPhase();
 		}
 
 		var actions = Action.FromInput(players, keyMappings);
@@ -177,6 +184,24 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		action.player.AddAction(action);
+	}
+
+	void ProcessEffect(Player player) {
+		var card = player.card;
+		switch (card.effect) {
+			case Effect.Heal:
+				player.hp++;
+				break;
+			case Effect.TeleportCenter:
+				var center = new Vector2Int(
+					Rules.instance.gridSize / 2,
+					Rules.instance.gridSize / 2
+				);
+				player.position = center;
+				player.targetPosition = center;
+				player.gameObject.transform.position = GridToWorld(center);
+				break;
+		}
 	}
 
 	IEnumerator SmoothMove(Player p) {
@@ -289,14 +314,14 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 
 		if (isReady) {
-			GoToActionPhase();
+			GoToEffectsPhase();
 		}
 		coroutineCount = 0;
 	}
 
 	void GoToCardsPhase() {
 		resolver.Reset();
-		phase = Phase.CARDS;
+		phase = Phase.Cards;
 		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
 		UIDispatcher.Send(new DSUI.SetTurnAction() { turn = 0 });
 		foreach (var player in players) {
@@ -305,8 +330,13 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 	}
 
+	void GoToEffectsPhase() {
+		phase = Phase.Effects;
+		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
+	}
+
 	void GoToActionPhase() {
-		phase = Phase.ACTIONS;
+		phase = Phase.Actions;
 		UIDispatcher.Send(new DSUI.SetPhaseAction(phase));
 		foreach (var player in players) {
 			player.Discard();

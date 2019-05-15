@@ -13,7 +13,7 @@ public class Deck {
 					dupeCount++;
 				}
 			}
-			if (dupeCount >= 2) {
+			if (dupeCount >= Rules.instance.maxDupes) {
 				Debug.Log("Ignoring dupe card " + candidate.id);
 				continue;
 			}

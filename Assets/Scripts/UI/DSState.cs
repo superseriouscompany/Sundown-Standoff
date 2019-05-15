@@ -10,7 +10,8 @@ namespace ReactiveUI {
 	}
 
 	public enum Phase {
-		CARDS,
-		ACTIONS
+		Cards,
+		Effects,
+		Actions
 	}
 }
