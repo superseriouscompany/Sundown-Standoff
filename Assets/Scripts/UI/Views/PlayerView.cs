@@ -10,7 +10,7 @@ public class PlayerView : UIView {
 
 	public override void Render(UIState state) {
 		var player = state.players[id];
-		if (player == null || player.cards == null) { return; }
+		if (player == null || player.hand == null) { return; }
 
 		var sb = new StringBuilder();
 

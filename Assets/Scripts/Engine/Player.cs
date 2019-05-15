@@ -19,6 +19,7 @@ public class Player {
 	public KeyMapping keyMapping;
 	public int actionsTaken;
 	int turn;
+	int cardIndex = -1;
 
 	public Player(int id, int hp, Vector2Int position) {
 		this.id = id;
@@ -32,28 +33,27 @@ public class Player {
 		Deal();
 	}
 
-	public void PickCard(int numActions) {
-		for (int i = 0; i < cards.Count; i++) {
-			if (cards[i].actions == numActions) {
-				card = cards[i];
-				actions.Clear();
-				actionsTaken = 0;
-				Debug.Log($"Player {id} picked card {card.actions}");
-				return;
-			}
+	public void PickCard(int index) {
+		cardIndex = index;
+		if (index > hand.cards.Count) {
+			throw new CardMissingException($"Couldn't find card at index {index}");
 		}
 
-		throw new CardMissingException($"Couldn't find card with {numActions} actions");
+		card = hand.cards[index];
+		Debug.Log($"Player {id} picked card {card}");
+		actions.Clear();
+		actionsTaken = 0;
 	}
 
 	public void Discard() {
 		cards.Remove(card);
 		turn = 0;
-		hand.Discard(0);
+		hand.Discard(cardIndex);
 		while (hand.cards.Count < Rules.instance.handSize) {
 			hand.Draw();
 		}
 		Debug.Log(hand);
+		cardIndex = -1;
 		if (cards.Count == 0) { Deal(); }
 	}
 

@@ -261,19 +261,22 @@ public class GameMonobehaviour : MonoBehaviour {
 	void PickCards() {
 		for (int i = 0; i < players.Length; i++) {
 			var keys = keyMappings[i];
-			int numActions = 0;
+
+			int index = -1;
 			if (Input.GetKeyUp(keys.cards[0])) {
-				numActions = 1;
+				index = 0;
 			} else if (Input.GetKeyUp(keys.cards[1])) {
-				numActions = 2;
+				index = 1;
 			} else if (Input.GetKeyUp(keys.cards[2])) {
-				numActions = 3;
+				index = 2;
+			} else if (Input.GetKeyUp(keys.cards[3])) {
+				index = 3;
 			}
 
-			if (numActions == 0) { continue; }
+			if (index == -1) { continue; }
 
 			try {
-				players[i].PickCard(numActions);
+				players[i].PickCard(index);
 			} catch (CardMissingException) { }
 		}
 

@@ -10,6 +10,10 @@ public class Card {
 	public Effect effect;
 	public string name;
 	public string description;
+
+	public override string ToString() {
+		return $"{name} ({actions})";
+	}
 }
 
 public enum Effect {
