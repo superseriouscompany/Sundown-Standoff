@@ -35,10 +35,58 @@ public class Grid {
 	public List<Vector2Int> Raycast(Action action) {
 		var origin = action.player.position;
 		var squares = new List<Vector2Int>();
+		var effect = action.player.card.effect;
 
 		foreach (var direction in directions) {
 			for (var nextSquare = origin + direction; IsValidSquare(nextSquare); nextSquare += direction) {
 				squares.Add(nextSquare);
+			}
+		}
+
+		if (effect == Effect.Explosive) {
+			var explosionSquares = new List<Vector2Int>();
+			foreach (var square in squares) {
+				if (square.x == 0) {
+					explosionSquares.Add(new Vector2Int(square.x, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y));
+				}
+				if (square.x == gridSize - 1) {
+					explosionSquares.Add(new Vector2Int(square.x, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y));
+				}
+				if (square.y == 0) {
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y));
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y + 1));
+					explosionSquares.Add(new Vector2Int(square.x, square.y + 1));
+				}
+				if (square.y == gridSize - 1) {
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y));
+					explosionSquares.Add(new Vector2Int(square.x - 1, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x + 1, square.y - 1));
+					explosionSquares.Add(new Vector2Int(square.x, square.y - 1));
+				}
+			}
+
+			foreach (var square in explosionSquares) {
+				if (!IsValidSquare(square)) { continue; }
+				bool squareExists = false;
+				foreach (var s in squares) {
+					if (s.x == square.x && s.y == square.y) {
+						squareExists = true;
+					}
+				}
+				if (squareExists) { continue; }
+
+				squares.Add(square);
 			}
 		}
 
