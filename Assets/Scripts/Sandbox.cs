@@ -55,6 +55,12 @@ public class Sandbox : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.Alpha7)) {
 			Debug.Log("7");
 		}
+
+		var cards = Deck.Deal();
+
+		foreach(var card in cards) {
+			Debug.Log($"CARD {card.id}");
+		}
 	}
 
 	IEnumerator DoMovement() {

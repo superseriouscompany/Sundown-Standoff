@@ -20,6 +20,9 @@ public class Rules : MonoBehaviour {
 	public int startingAmmo = 2;
 	public int maxAmmo = 3;
 
+	public int handSize = 4;
+	public int deckSize = 8;
+
 	public float turnDelay = 1f;
 	public float moveSpeed = 1f;
 
