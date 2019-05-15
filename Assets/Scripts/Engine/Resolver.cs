@@ -128,7 +128,12 @@ public class Resolver {
 
 	IEnumerator Hit(Player player) {
 		yield return new WaitForSecondsRealtime(0.8f);
-		player.hp--;
+		var otherPlayer = player.id == 0 ? players[1] : players[0];
+		if (otherPlayer.card.effect == Effect.GoldenGun) {
+			player.hp = 0;
+		} else {
+			player.hp--;
+		}
 		var animator = player.gameObject.GetComponent<Animator>();
 		animator.SetTrigger("Hit");
 		yield return new WaitForSecondsRealtime(0.1f);
