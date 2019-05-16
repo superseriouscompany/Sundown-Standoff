@@ -10,6 +10,7 @@ public class Card {
 	public Effect effect;
 	public string name;
 	public string description;
+	public Sprite sprite;
 
 	public override string ToString() {
 		return $"{name} ({actions})";
