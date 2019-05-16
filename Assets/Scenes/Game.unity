@@ -458,10 +458,10 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1600, y: 900}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -811,41 +811,49 @@ MonoBehaviour:
     effect: 1
     name: Heal
     description: Heals 1 hp before the round begins
+    sprite: {fileID: 0}
   - id: 0
     actions: 4
     effect: 0
     name: Stamina Boost
     description: Takes 4 actions
+    sprite: {fileID: 0}
   - id: 0
     actions: 2
     effect: 3
     name: Teleport
     description: Instantly move to the center using an old western teleporter
+    sprite: {fileID: 0}
   - id: 0
     actions: 2
     effect: 2
     name: Golden Gun
     description: Instant Kill Bullets
+    sprite: {fileID: 0}
   - id: 0
     actions: 1
     effect: 4
     name: Steal
     description: Steals one action from your opponent this turn
+    sprite: {fileID: 0}
   - id: 0
     actions: 1
     effect: 5
     name: Swap
     description: Swaps your actions for your opponents
+    sprite: {fileID: 0}
   - id: 0
     actions: 2
     effect: 6
     name: Explosive Shot
     description: Explodes when it hits walls
+    sprite: {fileID: 0}
   - id: 0
     actions: 2
     effect: 0
     name: '"Shotgun"'
     description: Just a regular gun
+    sprite: {fileID: 0}
   debugPositions: 0
   incrementalResolution: 0
   turnDelay: 0.6
@@ -1166,6 +1174,7 @@ MonoBehaviour:
         effect: 0
         name: 
         description: 
+        sprite: {fileID: 0}
       ammo: 0
       actionsTaken: 0
       actionModifier: 0
@@ -1181,6 +1190,7 @@ MonoBehaviour:
         effect: 0
         name: 
         description: 
+        sprite: {fileID: 0}
       ammo: 0
       actionsTaken: 0
       actionModifier: 0
