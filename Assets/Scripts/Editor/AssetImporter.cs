@@ -7,8 +7,9 @@ public class AssetImporter : AssetPostprocessor {
 		var textureImporter = (TextureImporter)assetImporter;
 		textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
 		textureImporter.filterMode = FilterMode.Point;
-		textureImporter.spriteImportMode = SpriteImportMode.Multiple;
 		textureImporter.mipmapEnabled = false;
+		return;
+		textureImporter.spriteImportMode = SpriteImportMode.Multiple;
 	}
 
 	// https://forum.unity.com/threads/sprite-editor-automatic-slicing-by-script.320776/
