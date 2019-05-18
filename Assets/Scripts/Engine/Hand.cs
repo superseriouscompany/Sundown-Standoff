@@ -52,11 +52,6 @@ public class Hand {
 		foreach (var card in library) {
 			sb.Append($"{card.name} ({card.actions})\n");
 		}
-		sb.AppendLine();
-		sb.Append("Graveyard:\n");
-		foreach (var card in graveyard) {
-			sb.Append($"{card.name} ({card.actions})\n");
-		}
 		return sb.ToString();
 	}
 }
