@@ -3510,12 +3510,6 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 834d6102b8e034cd2a0497801d2b8f4b, type: 3}
   - id: 0
     actions: 2
-    effect: 6
-    name: Explosive Shot
-    description: Explodes when it hits walls
-    sprite: {fileID: 21300000, guid: c65ceb89dd2764d46acf127ab7a56817, type: 3}
-  - id: 0
-    actions: 2
     effect: 0
     name: Shotgun
     description: Just a regular gun

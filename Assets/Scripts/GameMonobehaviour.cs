@@ -70,6 +70,7 @@ public class GameMonobehaviour : MonoBehaviour {
 
 		for (int i = 0; i < players.Length; i++) {
 			var playerObject = Instantiate(playerPrefab);
+			playerObject.GetComponent<SpriteRenderer>().color = i == 0 ? Color.magenta : Color.cyan;
 			playerObject.transform.position = GridToWorld(players[i].position);
 			playerObject.transform.localScale = new Vector3(2 * gridSquareWidth, 2 * gridSquareWidth, 2 * gridSquareWidth);
 			if (i == 1) {
@@ -276,12 +277,24 @@ public class GameMonobehaviour : MonoBehaviour {
 			resolver.StepReload();
 
 			resolver.StepShots();
-			foreach (var square in resolver.hitSquares) {
-				gridSquares[square.x, square.y].color = new Color(1, 0.5f, 1);
+			foreach (var square in resolver.p0HitSquares) {
+				gridSquares[square.x, square.y].color = Color.magenta;
 			}
+			foreach (var square in resolver.p1HitSquares) {
+				if (gridSquares[square.x, square.y].color == Color.magenta) {
+					gridSquares[square.x, square.y].color = new Color(0.5f, 0.5f, 1);
+				} else {
+					gridSquares[square.x, square.y].color = Color.cyan;
+				}
+			}
+
+			Debug.Break();
 			yield return new WaitForSeconds(Rules.instance.turnDelay);
-			foreach (var square in resolver.hitSquares) {
-				gridSquares[square.x, square.y].color = new Color(1, 1, 1);
+			foreach (var square in resolver.p0HitSquares) {
+				gridSquares[square.x, square.y].color = Color.white;
+			}
+			foreach (var square in resolver.p1HitSquares) {
+				gridSquares[square.x, square.y].color = Color.white;
 			}
 		}
 
