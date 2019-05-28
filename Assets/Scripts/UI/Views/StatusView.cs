@@ -20,7 +20,7 @@ public class StatusView: UIView {
 		if (player == null) { return; }
 
 		Debug.Log($"Hello {id}");
-		avatarImage.color = id == 0 ? Color.blue : Color.green;
+		avatarImage.color = id == 0 ? Color.magenta : Color.cyan;
 
 		if (heartPrefab != null) {
 			foreach (Transform child in heartContainer.transform) {
@@ -29,7 +29,7 @@ public class StatusView: UIView {
 
 			for (int i = 0; i < player.hp; i++) {
 				var heart = Instantiate(heartPrefab);
-				heart.transform.SetParent(heartContainer.transform);
+				heart.transform.SetParent(heartContainer.transform, false);
 			}
 		}
 
@@ -40,7 +40,8 @@ public class StatusView: UIView {
 
 			for (int i = 0; i < player.ammo; i++) {
 				var bullet = Instantiate(bulletPrefab);
-				bullet.transform.SetParent(bulletContainer.transform);
+				bullet.transform.localScale = Vector3.one;
+				bullet.transform.SetParent(bulletContainer.transform, false);
 			}
 		}
 	}
