@@ -10,7 +10,8 @@ public class Resolver {
 	Grid grid;
 	Player[] players;
 
-	public List<Vector2Int> hitSquares = new List<Vector2Int>();
+	public List<Vector2Int> p0HitSquares = new List<Vector2Int>();
+	public List<Vector2Int> p1HitSquares = new List<Vector2Int>();
 
 	public bool isComplete {
 		get {
@@ -90,7 +91,8 @@ public class Resolver {
 
 		Debug.Log($"Running {roundShooting.Count} shots");
 
-		hitSquares.Clear();
+		p0HitSquares.Clear();
+		p1HitSquares.Clear();
 		foreach (var action in roundShooting) {
 			var player = action.player;
 			if (player.ammo <= 0) {
@@ -100,7 +102,11 @@ public class Resolver {
 			player.ammo--;
 			player.ammo = Mathf.Clamp(player.ammo, 0, Rules.instance.maxAmmo);
 			var squares = grid.Raycast(action);
-			hitSquares.AddRange(squares);
+			if (player.id == 0) {
+				p0HitSquares.AddRange(squares);
+			} else {
+				p1HitSquares.AddRange(squares);
+			}
 			var animator = player.gameObject.GetComponent<Animator>();
 			animator.SetTrigger("Shoot");
 			Maestro.instance.PlayGunshot();
