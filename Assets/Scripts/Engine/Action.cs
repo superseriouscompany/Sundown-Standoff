@@ -16,7 +16,15 @@ public class Action {
 	public bool Validate() {
 		switch (actionType) {
 			case ActionType.RELOAD:
-				if (player.ammo >= Rules.instance.maxAmmo) {
+				var effectiveAmmo = player.ammo;
+				foreach (var action in player.actions) {
+					if (action.actionType == ActionType.SHOOT) {
+						effectiveAmmo--;
+					} else if (action.actionType == ActionType.RELOAD) {
+						effectiveAmmo++;
+					}
+				}
+				if (effectiveAmmo >= Rules.instance.maxAmmo) {
 					return false;
 				}
 				return true;

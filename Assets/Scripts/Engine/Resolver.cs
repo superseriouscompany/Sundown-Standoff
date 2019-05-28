@@ -96,7 +96,7 @@ public class Resolver {
 		foreach (var action in roundShooting) {
 			var player = action.player;
 			if (player.ammo <= 0) {
-				Reload(player);
+				Coroutines.Start(Reload(player));
 				continue;
 			}
 			player.ammo--;

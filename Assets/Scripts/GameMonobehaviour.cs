@@ -194,6 +194,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		switch (card.effect) {
 			case Effect.Heal:
 				player.hp++;
+				player.hp = Mathf.Clamp(player.hp, 0, Rules.instance.maxHp);
 				break;
 			case Effect.TeleportCenter:
 				var center = new Vector2Int(
