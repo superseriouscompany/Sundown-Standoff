@@ -17,6 +17,7 @@ public class HandView : UIView {
 	public override void Render(UIState state) {
 		if (state.players[id] == null) { return; }
 		var hand = state.players[id].hand;
+		if (hand == null) { return; }
 
 		foreach (Transform child in handContainer.transform) {
 			Destroy(child.gameObject);
