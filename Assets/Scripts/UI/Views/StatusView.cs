@@ -27,9 +27,11 @@ public class StatusView: UIView {
 				Destroy(child.gameObject);
 			}
 
-			for (int i = 0; i < player.hp; i++) {
+			for (int i = 0; i < Rules.instance.maxHp; i++) {
 				var heart = Instantiate(heartPrefab);
 				heart.transform.SetParent(heartContainer.transform, false);
+				var isEmpty = id == 0 ? i + 1 > player.hp : Rules.instance.maxHp - i > player.hp;
+				if (isEmpty) { heart.GetComponent<Image>().color = Color.black; }
 			}
 		}
 
@@ -38,10 +40,12 @@ public class StatusView: UIView {
 				Destroy(child.gameObject);
 			}
 
-			for (int i = 0; i < player.ammo; i++) {
+			for (int i = 0; i < Rules.instance.maxAmmo; i++) {
 				var bullet = Instantiate(bulletPrefab);
 				bullet.transform.localScale = Vector3.one;
 				bullet.transform.SetParent(bulletContainer.transform, false);
+				var isEmpty = id == 0 ? i + 1 > player.ammo : Rules.instance.maxAmmo - i > player.ammo;
+				if (isEmpty) { bullet.GetComponent<Image>().color = Color.black; }
 			}
 		}
 	}

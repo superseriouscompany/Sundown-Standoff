@@ -7,6 +7,7 @@ public class Rules : MonoBehaviour {
 	public int gridSize = 5;
 
 	public int hp = 3;
+	public int maxHp = 3;
 
 	public int startingAmmo = 2;
 	public int maxAmmo = 3;
