@@ -168,6 +168,7 @@ public class GameMonobehaviour : MonoBehaviour {
 		}
 		if (!allReady) { return; }
 
+		UIDispatcher.Send(new DSUI.RenderAction());
 		resolver.AddActions(actions);
 		Debug.Log($"Running round");
 		StartCoroutine(ResolveActions());
