@@ -7,6 +7,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	public GameObject playerPrefab;
 	public GameObject gridSquare;
 	public float gridSquareWidth = 0.6f;
+	public float gridVerticalOffset = 20f;
 
 	public GameObject desert;
 
@@ -111,7 +112,7 @@ public class GameMonobehaviour : MonoBehaviour {
 	Vector2 GridToWorld(Vector2Int vector) {
 		return new Vector2(
 			vector.x * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2,
-			vector.y * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1
+			vector.y * gridSquareWidth - (Rules.instance.gridSize * gridSquareWidth / 2) + gridSquareWidth / 2 - 1 + gridVerticalOffset
 		);
 	}
 
